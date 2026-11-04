@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#103d32">
+  <meta name="description" content="CampusCash Malawi - Student registration and loan application portal.">
+  <title>CampusCash Malawi | Student Finance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-mark">CC</span><span>CampusCash <small>Malawi</small></span></a>
+    <nav><a href="#how">How it works</a><a href="#apply">Apply</a><a href="#account">Student account</a></nav>
+    <a class="btn btn-outline nav-apply" href="#apply">Apply for a loan</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">STUDENT FINANCE • MALAWI</span>
+        <h1>Move your education <em>forward.</em></h1>
+        <p>Apply for student financial support through a simple, transparent application process. Register, submit your details and track your application.</p>
+        <div class="hero-actions"><a class="btn btn-gold" href="#apply">Start an application <span>→</span></a><a class="text-link" href="#how">See how it works</a></div>
+        <div class="trust-line"><span class="check">✓</span> Secure account access <span class="dot">•</span> Application tracking</div>
+      </div>
+      <div class="hero-panel">
+        <div class="panel-top"><span class="live-dot"></span> STUDENT PORTAL <span class="panel-menu">•••</span></div>
+        <div class="panel-title">Your next step starts here</div>
+        <div class="mini-card"><div class="mini-icon">01</div><div><b>Create your account</b><small>Register with your details</small></div><span>→</span></div>
+        <div class="mini-card"><div class="mini-icon">02</div><div><b>Submit an application</b><small>Tell us about your studies</small></div><span>→</span></div>
+        <div class="mini-card"><div class="mini-icon">03</div><div><b>Track your progress</b><small>Check your application status</small></div><span>→</span></div>
+        <div class="panel-foot"><span>CampusCash Malawi</span><span>Student support portal</span></div>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div><b>Simple</b><span>Online registration</span></div>
+      <div><b>Clear</b><span>Application process</span></div>
+      <div><b>Accessible</b><span>Mobile-friendly portal</span></div>
+    </section>
+
+    <section id="how" class="section">
+      <div class="section-heading"><span class="eyebrow">GET STARTED</span><h2>How CampusCash works</h2><p>Follow these steps to submit your request for consideration.</p></div>
+      <div class="steps">
+        <article><span>01</span><h3>Create an account</h3><p>Register using your name, email address and a secure password.</p></article>
+        <article><span>02</span><h3>Complete your profile</h3><p>Provide your institution, programme and contact information.</p></article>
+        <article><span>03</span><h3>Apply and track</h3><p>Submit your requested amount and check your application status.</p></article>
+      </div>
+    </section>
+
+    <section id="account" class="section account-section">
+      <div class="section-heading"><span class="eyebrow">STUDENT ACCESS</span><h2>Your student account</h2><p>Create an account or sign in to continue.</p></div>
+      <div class="account-grid">
+        <form id="registerForm" class="form-card">
+          <h3>Create an account</h3>
+          <label>Full name<input name="full_name" required placeholder="Your full name"></label>
+          <label>Email address<input name="email" type="email" required placeholder="you@example.com"></label>
+          <label>Phone number<input name="phone" required placeholder="+265..."></label>
+          <label>Password<input name="password" type="password" minlength="6" required placeholder="At least 6 characters"></label>
+          <button class="btn btn-green full" type="submit">Register</button>
+          <p class="form-note">You may need to confirm your email before signing in.</p>
+        </form>
+        <form id="loginForm" class="form-card">
+          <h3>Welcome back</h3>
+          <label>Email address<input name="email" type="email" required placeholder="you@example.com"></label>
+          <label>Password<input name="password" type="password" required placeholder="Your password"></label>
+          <button class="btn btn-dark full" type="submit">Sign in</button>
+          <div id="sessionBox" class="session-box hidden"></div>
+          <button id="logoutBtn" class="btn btn-outline full hidden" type="button">Sign out</button>
+          <p class="form-note">Use the email and password linked to your account.</p>
+        </form>
+      </div>
+    </section>
+
+    <section id="apply" class="section apply-section">
+      <div class="section-heading"><span class="eyebrow">LOAN REQUEST</span><h2>Student loan application</h2><p>Sign in first, then complete the application form.</p></div>
+      <form id="applicationForm" class="form-card application-form">
+        <div class="form-intro"><div><h3>Application details</h3><p>Enter accurate information so your request can be reviewed.</p></div><span class="secure-label">🔒 Private submission</span></div>
+        <div class="form-grid">
+          <label>Full name<input name="full_name" required placeholder="As shown on your student documents"></label>
+          <label>Phone number<input name="phone" required placeholder="+265..."></label>
+          <label>College / University<input name="institution" required placeholder="Name of institution"></label>
+          <label>Programme / Course<input name="programme" required placeholder="Your programme"></label>
+          <label>Year of study<select name="study_year" required><option value="">Select year</option><option>First year</option><option>Second year</option><option>Third year</option><option>Fourth year</option><option>Other</option></select></label>
+          <label>Amount requested (MWK)<input name="amount_requested" type="number" min="1" required placeholder="e.g. 150000"></label>
+          <label class="wide">Purpose of loan<textarea name="purpose" rows="4" required placeholder="Explain what the financial support will be used for"></textarea></label>
+        </div>
+        <label class="consent"><input type="checkbox" required> I confirm that the information provided is accurate and agree that it may be used to assess this application.</label>
+        <button class="btn btn-gold" type="submit">Submit application <span>→</span></button>
+        <p class="form-note">Submitting an application does not guarantee approval or payment. Terms, eligibility and any security requirements must be confirmed by CampusCash Malawi.</p>
+      </form>
+      <div id="applicationMessage" class="notice hidden" role="status"></div>
+    </section>
+
+    <section class="notice-section">
+      <div><span class="eyebrow">IMPORTANT</span><h2>Apply with confidence.</h2><p>CampusCash Malawi should publish its verified eligibility rules, fees, interest rates, repayment schedule, privacy policy and contact details before accepting live applications. Never submit passwords, PINs or mobile-money codes to anyone.</p></div>
+    </section>
+  </main>
+
+  <footer><a class="brand footer-brand" href="#"><span class="brand-mark">CC</span><span>CampusCash <small>Malawi</small></span></a><span>© <span id="year"></span> CampusCash Malawi. All rights reserved.</span></footer>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
