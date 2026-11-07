@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Student dashboard for CampusCash Malawi." />
+  <title>Student Dashboard | CampusCash Malawi</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">CC</span>
+      <span>
+        <strong>CampusCash</strong>
+        <small>MALAWI</small>
+      </span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="apply.html">Apply for a Loan</a>
+      <a href="dashboard.html">Student Dashboard</a>
+      <a href="login.html">Login</a>
+      <a href="register.html">Register</a>
+    </nav>
+
+    <a class="nav-button" href="register.html">Get Started</a>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="page-hero-inner">
+        <span class="eyebrow">MY ACCOUNT</span>
+        <h1>Student dashboard</h1>
+        <p>Track your submitted loan applications, review your status, and stay up to date with your student funding journey.</p>
+      </div>
+    </section>
+
+    <section class="section dashboard-section">
+      <div class="dashboard-card">
+        <div class="dashboard-header">
+          <h3>Application overview</h3>
+          <span class="status-pill">Student</span>
+        </div>
+
+        <div id="sessionBox" class="session-box hidden"></div>
+        <button id="logoutBtn" class="btn btn-primary hidden" type="button">Logout</button>
+
+        <div id="studentDashboard" class="dashboard-summary"></div>
+        <div id="applicationList" class="application-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-brand">
+      <span class="brand-mark">CC</span>
+      <div><strong>CampusCash Malawi</strong><small>Empowering Students. Supporting Education.</small></div>
+    </div>
+    <p>© <span id="year"></span> CampusCash Malawi. All rights reserved.</p>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

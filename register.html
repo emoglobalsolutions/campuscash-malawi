@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Create a CampusCash Malawi student account." />
+  <title>Register | CampusCash Malawi</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">CC</span>
+      <span>
+        <strong>CampusCash</strong>
+        <small>MALAWI</small>
+      </span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="apply.html">Apply for a Loan</a>
+      <a href="dashboard.html">Student Dashboard</a>
+      <a href="login.html">Login</a>
+      <a href="register.html">Register</a>
+    </nav>
+
+    <a class="nav-button" href="register.html">Get Started</a>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="page-hero-inner">
+        <span class="eyebrow">REGISTER</span>
+        <h1>Create your student account.</h1>
+        <p>Sign up to start your loan application, track updates, and manage your student finance profile.</p>
+      </div>
+    </section>
+
+    <section class="section account-section">
+      <div class="account-grid">
+        <form id="registerForm" class="form-card">
+          <h3>Student registration</h3>
+          <p class="muted">Create a secure account to begin your application process.</p>
+
+          <label for="register-full-name">Full name</label>
+          <input id="register-full-name" name="full_name" type="text" placeholder="Your full name" required />
+
+          <label for="register-phone">Phone number</label>
+          <input id="register-phone" name="phone" type="tel" placeholder="+265 ..." required />
+
+          <label for="register-email">Email address</label>
+          <input id="register-email" name="email" type="email" placeholder="you@example.com" required />
+
+          <label for="register-password">Password</label>
+          <input id="register-password" name="password" type="password" placeholder="At least 8 characters" required />
+
+          <button class="btn btn-primary btn-full" type="submit">Create Account</button>
+          <div id="sessionBox" class="session-box hidden"></div>
+        </form>
+
+        <div class="info-card">
+          <h3>Already registered?</h3>
+          <p class="muted">Access your dashboard and continue with your application.</p>
+          <a class="btn btn-light" href="login.html">Login</a>
+          <ul style="padding-left: 18px; margin-top: 20px; color: var(--muted); font-size: 12px;">
+            <li>Apply for support online</li>
+            <li>Track application progress</li>
+            <li>Review student loan estimates</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-brand">
+      <span class="brand-mark">CC</span>
+      <div><strong>CampusCash Malawi</strong><small>Empowering Students. Supporting Education.</small></div>
+    </div>
+    <p>© <span id="year"></span> CampusCash Malawi. All rights reserved.</p>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

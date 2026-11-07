@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 :root {
   --green: #103d32;
@@ -55,8 +56,6 @@ button:disabled {
   cursor: not-allowed;
   transform: none;
 }
-
-/* NAVIGATION */
 
 .topbar {
   min-height: 76px;
@@ -136,8 +135,6 @@ button:disabled {
   transition: .2s ease;
 }
 
-/* BUTTONS */
-
 .btn {
   display: inline-flex;
   align-items: center;
@@ -186,8 +183,6 @@ button:disabled {
   width: 100%;
   margin-top: 16px;
 }
-
-/* HERO */
 
 .hero {
   padding: 75px 8%;
@@ -332,8 +327,6 @@ button:disabled {
   font-size: 11px;
 }
 
-/* TRUST STRIP */
-
 .trust-strip {
   background: white;
   padding: 23px 8%;
@@ -363,8 +356,6 @@ button:disabled {
   font-size: 12px;
 }
 
-/* GENERAL SECTIONS */
-
 .section {
   padding: 75px 8%;
 }
@@ -391,8 +382,6 @@ button:disabled {
   color: var(--muted);
   font-size: 14px;
 }
-
-/* HOW IT WORKS */
 
 .steps-grid {
   display: grid;
@@ -433,8 +422,6 @@ button:disabled {
   font-size: 12px;
 }
 
-/* ACCOUNT FORMS */
-
 .account-section {
   background: #edf4ef;
 }
@@ -473,8 +460,6 @@ button:disabled {
   font-size: 13px;
   margin-bottom: 20px;
 }
-
-/* FORM ELEMENTS */
 
 label {
   display: block;
@@ -539,8 +524,6 @@ input[type="date"] {
 .hidden {
   display: none !important;
 }
-
-/* APPLICATION */
 
 .application-section {
   background: var(--background);
@@ -615,8 +598,6 @@ input[type="date"] {
   grid-column: 1 / -1;
 }
 
-/* REPAYMENT ESTIMATE */
-
 .estimate-card {
   background: #f1f7f3;
   border: 1px solid #d8e8dc;
@@ -663,16 +644,6 @@ input[type="date"] {
   color: var(--green2);
   font-size: 16px;
 }
-
-.estimate-card > small,
-.gold-card > small {
-  display: block;
-  color: var(--muted);
-  font-size: 10px;
-  margin-top: 12px;
-}
-
-/* COLLATERAL AND CONSENT */
 
 .notice-section {
   background: var(--gold-light);
@@ -728,8 +699,6 @@ input[type="date"] {
   font-size: 12px;
 }
 
-/* INFORMATION SIDEBAR */
-
 .side-information {
   display: grid;
   gap: 17px;
@@ -770,8 +739,6 @@ input[type="date"] {
 .rate-row strong {
   color: #70501b;
 }
-
-/* STUDENT DASHBOARD */
 
 .dashboard-section {
   background: #edf4ef;
@@ -842,14 +809,6 @@ input[type="date"] {
   margin: 3px 0;
 }
 
-/* ADMIN AREA */
-
-.admin-section {
-  background: white;
-}
-
-/* FOOTER */
-
 .footer {
   padding: 35px 8%;
   background: #0b2d25;
@@ -883,8 +842,6 @@ input[type="date"] {
   margin-right: auto;
 }
 
-/* TOAST NOTIFICATIONS */
-
 .toast {
   position: fixed;
   bottom: 22px;
@@ -910,7 +867,66 @@ input[type="date"] {
   transform: translateX(-50%) translateY(0);
 }
 
-/* RESPONSIVE TABLET */
+.page-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 32px;
+}
+
+.page-hero {
+  padding: 48px 8% 30px;
+  background: linear-gradient(120deg, #103d32, #17634f);
+  color: white;
+}
+
+.page-hero-inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.page-hero h1 {
+  font-family: Manrope, sans-serif;
+  font-size: clamp(30px, 4vw, 44px);
+  margin-bottom: 12px;
+}
+
+.page-hero p {
+  color: #d9e8e2;
+  max-width: 720px;
+}
+
+.page-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 1100px;
+  margin: 30px auto 0;
+}
+
+.info-block {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px;
+}
+
+.info-block h3 {
+  color: var(--green);
+  margin-bottom: 8px;
+  font-family: Manrope, sans-serif;
+}
+
+.info-block p,
+.info-block li {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.info-block ul {
+  padding-left: 18px;
+}
 
 @media (max-width: 950px) {
   .nav-links {
@@ -934,9 +950,11 @@ input[type="date"] {
   .steps-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-}
 
-/* RESPONSIVE MOBILE */
+  .page-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
 @media (max-width: 650px) {
   .topbar {
@@ -986,7 +1004,8 @@ input[type="date"] {
 
   .steps-grid,
   .account-grid,
-  .side-information {
+  .side-information,
+  .form-grid {
     grid-template-columns: 1fr;
   }
 
@@ -996,41 +1015,5 @@ input[type="date"] {
 
   .application-form {
     padding: 19px;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .full-width {
-    grid-column: auto;
-  }
-
-  .dashboard-card {
-    padding: 19px;
-  }
-
-  .dashboard-header {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .estimate-row {
-    font-size: 11px;
-  }
-
-  .footer {
-    padding: 30px 5%;
-  }
-}
-
-/* ACCESSIBILITY */
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    transition-duration: .01ms !important;
   }
 }

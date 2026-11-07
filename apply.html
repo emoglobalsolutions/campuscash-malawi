@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Apply for a student loan with CampusCash Malawi." />
+  <title>Apply for a Loan | CampusCash Malawi</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">CC</span>
+      <span>
+        <strong>CampusCash</strong>
+        <small>MALAWI</small>
+      </span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="apply.html">Apply for a Loan</a>
+      <a href="dashboard.html">Student Dashboard</a>
+      <a href="login.html">Login</a>
+      <a href="register.html">Register</a>
+    </nav>
+
+    <a class="nav-button" href="register.html">Get Started</a>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="page-hero-inner">
+        <span class="eyebrow">STUDENT LOAN</span>
+        <h1>Apply for a loan that supports your education.</h1>
+        <p>Complete your application in a few simple steps and receive a clear estimate of your repayment before you submit.</p>
+      </div>
+    </section>
+
+    <section class="section application-section">
+      <div class="application-layout">
+        <form id="applicationForm" class="form-card application-form">
+          <div class="form-section-title">
+            <span>01</span>
+            <div>
+              <h3>Student details</h3>
+              <p>Basic information for your application.</p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="full_name">Full name</label>
+              <input id="full_name" name="full_name" type="text" placeholder="Enter your full name" required />
+            </div>
+
+            <div class="field">
+              <label for="date_of_birth">Date of birth</label>
+              <input id="date_of_birth" name="date_of_birth" type="date" required />
+            </div>
+
+            <div class="field">
+              <label for="phone">Phone number</label>
+              <input id="phone" name="phone" type="tel" placeholder="e.g. +265 999 123 456" required />
+            </div>
+
+            <div class="field">
+              <label for="email">Email address</label>
+              <input id="email" name="email" type="email" placeholder="you@example.com" required />
+            </div>
+
+            <div class="field full-width">
+              <label for="residential_address">Residential address</label>
+              <textarea id="residential_address" name="residential_address" rows="3" placeholder="Your current residential address" required></textarea>
+            </div>
+          </div>
+
+          <div class="form-section-title">
+            <span>02</span>
+            <div>
+              <h3>Education details</h3>
+              <p>Tell us about your academic profile.</p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="institution">Institution</label>
+              <input id="institution" name="institution" type="text" placeholder="University or college" required />
+            </div>
+
+            <div class="field">
+              <label for="programme">Programme</label>
+              <input id="programme" name="programme" type="text" placeholder="Course or degree" required />
+            </div>
+
+            <div class="field">
+              <label for="study_year">Study year</label>
+              <input id="study_year" name="study_year" type="text" placeholder="Year 1, 2, 3..." required />
+            </div>
+
+            <div class="field">
+              <label for="student_id">Student ID number</label>
+              <input id="student_id" name="student_id" type="text" placeholder="Student ID" required />
+            </div>
+          </div>
+
+          <div class="form-section-title">
+            <span>03</span>
+            <div>
+              <h3>Loan request</h3>
+              <p>Choose the amount and repayment term.</p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="amount_requested">Loan amount (MWK)</label>
+              <input id="loanAmount" name="amount_requested" type="number" min="20000" max="2000000" step="5000" placeholder="20000" required />
+            </div>
+
+            <div class="field">
+              <label for="loan_term">Repayment period</label>
+              <select id="loanTerm" name="loan_term" required>
+                <option value="">Select term</option>
+                <option value="1">1 week</option>
+                <option value="2">2 weeks</option>
+                <option value="3">3 weeks</option>
+                <option value="4">4 weeks</option>
+              </select>
+            </div>
+
+            <div class="field full-width">
+              <label for="purpose">Purpose of the loan</label>
+              <textarea id="purpose" name="purpose" rows="3" placeholder="Describe the purpose of this loan" required></textarea>
+            </div>
+          </div>
+
+          <div class="estimate-card">
+            <h3>Repayment estimate</h3>
+            <p class="muted">Estimated based on your selected amount and term.</p>
+
+            <div class="estimate-row"><span>Principal</span><strong id="estimatePrincipal">MWK 0</strong></div>
+            <div class="estimate-row"><span>Rate</span><strong id="estimateRate">—</strong></div>
+            <div class="estimate-row"><span>Interest</span><strong id="estimateInterest">MWK 0</strong></div>
+            <div class="estimate-row total-row"><span>Total repayment</span><strong id="estimateTotal">MWK 0</strong></div>
+            <div class="estimate-row"><span>Due date</span><strong id="estimateDueDate">—</strong></div>
+          </div>
+
+          <div class="form-section-title">
+            <span>04</span>
+            <div>
+              <h3>Collateral</h3>
+              <p>Provide collateral information for verification.</p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="collateral_type">Collateral type</label>
+              <input id="collateral_type" name="collateral_type" type="text" placeholder="Motorbike, laptop, etc." required />
+            </div>
+
+            <div class="field">
+              <label for="collateral_estimated_value">Estimated value (MWK)</label>
+              <input id="collateral_estimated_value" name="collateral_estimated_value" type="number" min="1" step="1000" placeholder="250000" required />
+            </div>
+
+            <div class="field full-width">
+              <label for="collateral_description">Collateral description</label>
+              <textarea id="collateral_description" name="collateral_description" rows="3" placeholder="Describe the collateral and condition" required></textarea>
+            </div>
+          </div>
+
+          <div class="notice-section">
+            <strong>Physical verification required</strong>
+            <p>CampusCash staff may contact you to arrange a physical inspection of your collateral before final approval.</p>
+          </div>
+
+          <div class="form-section-title">
+            <span>05</span>
+            <div>
+              <h3>Emergency contact</h3>
+              <p>Add a trusted contact for follow-up.</p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="emergency_contact_name">Emergency contact name</label>
+              <input id="emergency_contact_name" name="emergency_contact_name" type="text" placeholder="Name" required />
+            </div>
+
+            <div class="field">
+              <label for="emergency_contact_phone">Emergency contact phone</label>
+              <input id="emergency_contact_phone" name="emergency_contact_phone" type="tel" placeholder="Phone number" required />
+            </div>
+
+            <div class="field full-width">
+              <label for="emergency_contact_relationship">Relationship</label>
+              <input id="emergency_contact_relationship" name="emergency_contact_relationship" type="text" placeholder="Parent, guardian, spouse, friend" required />
+            </div>
+          </div>
+
+          <div class="consent">
+            <label class="check-label">
+              <input type="checkbox" name="collateral_confirmation" value="yes" required />
+              <span>I confirm that the collateral is available for physical verification.</span>
+            </label>
+
+            <label class="check-label">
+              <input type="checkbox" name="information_confirmation" value="yes" required />
+              <span>I confirm that the information I have provided is accurate and true.</span>
+            </label>
+
+            <label class="check-label">
+              <input type="checkbox" name="terms_confirmation" value="yes" required />
+              <span>I understand the repayment estimate and I agree to review the loan conditions before approval.</span>
+            </label>
+          </div>
+
+          <button class="btn btn-primary submit-button btn-full" type="submit">Submit Loan Application</button>
+          <div id="applicationMessage" class="success-message hidden"></div>
+        </form>
+
+        <aside class="side-information">
+          <div class="info-card gold-card">
+            <h3>Loan details</h3>
+            <div class="rate-row"><span>Minimum</span><strong>MWK 20,000</strong></div>
+            <div class="rate-row"><span>Maximum</span><strong>MWK 2,000,000</strong></div>
+            <div class="rate-row"><span>Interest</span><strong>20–50%</strong></div>
+            <div class="rate-row"><span>Review</span><strong>Within 7 days</strong></div>
+            <small>Applications may be subject to verification and approval.</small>
+          </div>
+
+          <div class="info-card">
+            <h3>Required documents</h3>
+            <ul>
+              <li>Student ID or admission letter</li>
+              <li>Valid phone number and email</li>
+              <li>Collateral details</li>
+              <li>Emergency contact details</li>
+            </ul>
+          </div>
+
+          <div class="info-card">
+            <h3>Important</h3>
+            <p class="muted">This platform is for student financing support. Final eligibility and approval are subject to review by CampusCash Malawi staff.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-brand">
+      <span class="brand-mark">CC</span>
+      <div><strong>CampusCash Malawi</strong><small>Empowering Students. Supporting Education.</small></div>
+    </div>
+    <p>© <span id="year"></span> CampusCash Malawi. All rights reserved.</p>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
