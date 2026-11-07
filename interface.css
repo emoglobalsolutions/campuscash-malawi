@@ -1,56 +1,39 @@
-/* Dropdown navigation and password controls, loaded by app.js on every page. */
-.topbar {
-  position: sticky;
-}
-
-.menu-toggle {
-  width: 46px;
-  height: 46px;
-  flex: 0 0 46px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(16, 61, 50, 0.12);
-  border-radius: 14px;
-  color: var(--green-800, #103d32);
-  background: #fff;
-  box-shadow: 0 8px 20px rgba(16, 61, 50, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-
-.menu-toggle:hover,
-.menu-toggle[aria-expanded="true"] {
-  background: var(--green-50, #f2faf7);
-  box-shadow: 0 10px 24px rgba(16, 61, 50, 0.12);
-  transform: translateY(-1px);
-}
-
-.menu-toggle:focus-visible,
-.password-toggle:focus-visible {
-  outline: 3px solid rgba(214, 170, 69, 0.75);
-  outline-offset: 3px;
-}
-
-.menu-toggle-dots {
-  display: flex;
-  gap: 3px;
-  flex-direction: column;
-}
-
-.menu-toggle-dots i {
-  display: block;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
+/* Keep Home, Apply, and Dashboard in the header; the three-dot menu opens all links. */
 .topbar > .nav-links {
+  display: flex;
+  position: static;
+  width: auto;
+  max-height: none;
+  overflow: visible;
+  padding: 0;
+  gap: 14px;
+  flex-direction: row;
+  align-items: center;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.topbar > .nav-links a {
   display: none;
+  min-height: 40px;
+  padding: 8px 4px;
+  white-space: nowrap;
+}
+
+.topbar > .nav-links a[href="index.html"],
+.topbar > .nav-links a[href="apply.html"],
+.topbar > .nav-links a[href="dashboard.html"] {
+  display: flex;
+}
+
+.topbar > .nav-links.is-open {
+  display: flex;
   position: absolute;
   top: calc(100% + 10px);
   right: 6%;
-  z-index: 60;
   width: min(320px, calc(100vw - 32px));
   max-height: min(75vh, 480px);
   overflow-y: auto;
@@ -65,85 +48,38 @@
   backdrop-filter: blur(16px);
 }
 
-.topbar > .nav-links.is-open {
+.topbar > .nav-links.is-open a,
+.topbar > .nav-links.is-open a[href="index.html"],
+.topbar > .nav-links.is-open a[href="apply.html"],
+.topbar > .nav-links.is-open a[href="dashboard.html"] {
   display: flex;
-}
-
-.topbar > .nav-links a {
-  display: flex;
-  align-items: center;
   min-height: 46px;
   padding: 10px 14px;
-  border-radius: 11px;
-  color: var(--slate-700, #425855);
-  font-size: 14px;
-  font-weight: 700;
-  transition: color 0.18s ease, background 0.18s ease;
-}
-
-.topbar > .nav-links a::after {
-  display: none;
-}
-
-.topbar > .nav-links a:hover,
-.topbar > .nav-links a:focus-visible {
-  color: var(--green-800, #103d32);
-  background: var(--green-50, #f2faf7);
-  outline: none;
-}
-
-.password-field {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.password-field input {
-  width: 100%;
-  padding-right: 68px;
-}
-
-.password-toggle {
-  position: absolute;
-  right: 8px;
-  min-width: 48px;
-  padding: 6px 8px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--green-700, #17634f);
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.password-toggle:hover {
-  background: var(--green-100, #e9f5f1);
 }
 
 @media (max-width: 650px) {
-  .topbar {
-    gap: 10px;
+  .topbar > .nav-links:not(.is-open) {
+    order: 3;
+    width: 100%;
+    justify-content: space-around;
+    gap: 4px;
+    overflow: visible;
+    padding: 4px 0 0;
   }
 
-  .menu-toggle {
-    margin-left: auto;
+  .topbar > .nav-links:not(.is-open) a[href="index.html"],
+  .topbar > .nav-links:not(.is-open) a[href="apply.html"],
+  .topbar > .nav-links:not(.is-open) a[href="dashboard.html"] {
+    min-height: 42px;
+    padding: 6px 7px;
+    font-size: 12px;
   }
 
-  .topbar > .nav-links {
+  .topbar > .nav-links.is-open {
     right: 5%;
   }
 
-  .topbar > .nav-links a {
-    min-height: 48px;
-    font-size: 15px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .menu-toggle,
-  .topbar > .nav-links a {
-    transition: none;
+  .topbar > .nav-button {
+    display: none;
   }
 }
