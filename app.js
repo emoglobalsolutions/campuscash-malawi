@@ -5,7 +5,7 @@
  * Never place a service_role key in browser code.
  */
 const SUPABASE_URL = "https://ebrkvcoittwhhmyimcnn.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_OR_PUBLISHABLE_KEY";
+const SUPABASE_ANON_KEY = "sb_publishable_qP6zmrNWicI8GkhT5hmelA_dj9DjCsB";
 
 let supabaseClient = null;
 let currentUser = null;
