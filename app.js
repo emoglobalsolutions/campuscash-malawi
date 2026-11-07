@@ -4,7 +4,7 @@
  * Configure only the public Supabase URL and anon/publishable key below.
  * Never place a service_role key in browser code.
  */
-const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_URL = "https://ebrkvcoittwhhmyimcnn.supabase.co";
 const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_OR_PUBLISHABLE_KEY";
 
 let supabaseClient = null;
