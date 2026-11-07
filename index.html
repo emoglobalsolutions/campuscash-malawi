@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,7 +17,7 @@
 
 <body>
   <header class="topbar">
-    <a class="brand" href="#home">
+    <a class="brand" href="index.html">
       <span class="brand-mark">CC</span>
       <span>
         <strong>CampusCash</strong>
@@ -27,13 +26,15 @@
     </a>
 
     <nav class="nav-links">
-      <a href="#home">Home</a>
-      <a href="#apply">Apply for a Loan</a>
-      <a href="#dashboard">Student Dashboard</a>
-      <a href="#about">About</a>
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="apply.html">Apply for a Loan</a>
+      <a href="dashboard.html">Student Dashboard</a>
+      <a href="login.html">Login</a>
+      <a href="register.html">Register</a>
     </nav>
 
-    <a class="nav-button" href="#account">Get Started</a>
+    <a class="nav-button" href="register.html">Get Started</a>
   </header>
 
   <main>
@@ -42,13 +43,12 @@
         <span class="eyebrow">STUDENT FINANCIAL SUPPORT</span>
         <h1>Empowering Students.<br><span>Supporting Education.</span></h1>
         <p>
-          CampusCash Malawi provides a digital platform for students to
-          register, apply for financial support and follow their loan
-          application progress.
+          CampusCash Malawi provides a digital platform for students to register,
+          apply for financial support and follow their loan application progress.
         </p>
         <div class="hero-actions">
-          <a class="btn btn-gold" href="#apply">Apply for a Loan</a>
-          <a class="btn btn-outline" href="#account">Student Account</a>
+          <a class="btn btn-gold" href="apply.html">Apply for a Loan</a>
+          <a class="btn btn-outline" href="register.html">Student Account</a>
         </div>
         <div class="hero-note">
           <span class="status-dot"></span>
@@ -86,7 +86,7 @@
       <div><strong>Application tracking</strong><span>Follow your application status online</span></div>
     </section>
 
-    <section class="section" id="about">
+    <section class="section" id="about-home">
       <div class="section-heading">
         <span class="eyebrow">HOW IT WORKS</span>
         <h2>Your application journey</h2>
@@ -114,296 +114,6 @@
           <h3>Review and decision</h3>
           <p>Track your application and any decision or repayment information through your account.</p>
         </article>
-      </div>
-    </section>
-
-    <section class="section account-section" id="account">
-      <div class="section-heading">
-        <span class="eyebrow">STUDENT ACCESS</span>
-        <h2>Welcome to CampusCash</h2>
-        <p>Create an account or sign in to access your student services.</p>
-      </div>
-
-      <div class="account-grid">
-        <div class="form-card">
-          <h3>Create a student account</h3>
-          <p class="muted">Register with a valid email address.</p>
-
-          <form id="registerForm">
-            <label for="registerName">Full name</label>
-            <input id="registerName" name="full_name" type="text" placeholder="Enter your full name" required>
-
-            <label for="registerPhone">Phone number</label>
-            <input id="registerPhone" name="phone" type="tel" placeholder="+265..." required>
-
-            <label for="registerEmail">Email address</label>
-            <input id="registerEmail" name="email" type="email" placeholder="you@example.com" required>
-
-            <label for="registerPassword">Password</label>
-            <input id="registerPassword" name="password" type="password" minlength="8" placeholder="At least 8 characters" required>
-
-            <button class="btn btn-primary btn-full" type="submit">Create Account</button>
-          </form>
-        </div>
-
-        <div class="form-card">
-          <h3>Student login</h3>
-          <p class="muted">Already registered? Sign in here.</p>
-
-          <form id="loginForm">
-            <label for="loginEmail">Email address</label>
-            <input id="loginEmail" name="email" type="email" placeholder="Enter your email" required>
-
-            <label for="loginPassword">Password</label>
-            <input id="loginPassword" name="password" type="password" placeholder="Enter your password" required>
-
-            <button class="btn btn-dark btn-full" type="submit">Sign In</button>
-          </form>
-
-          <div id="sessionBox" class="session-box hidden"></div>
-          <button id="logoutBtn" class="btn btn-light btn-full hidden" type="button">Sign Out</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="section application-section" id="apply">
-      <div class="section-heading">
-        <span class="eyebrow">LOAN APPLICATION</span>
-        <h2>Apply for student financial support</h2>
-        <p>Complete the application carefully. All applications are subject to review.</p>
-      </div>
-
-      <div class="application-layout">
-        <form id="applicationForm" class="form-card application-form">
-          <div class="form-section-title">
-            <span>01</span>
-            <div><h3>Personal information</h3><p>Your contact and identification details.</p></div>
-          </div>
-
-          <div class="form-grid">
-            <div class="field">
-              <label for="appFullName">Full name</label>
-              <input id="appFullName" name="full_name" type="text" required>
-            </div>
-            <div class="field">
-              <label for="dateOfBirth">Date of birth</label>
-              <input id="dateOfBirth" name="date_of_birth" type="date" required>
-            </div>
-            <div class="field">
-              <label for="appPhone">Phone number</label>
-              <input id="appPhone" name="phone" type="tel" placeholder="+265..." required>
-            </div>
-            <div class="field">
-              <label for="appEmail">Email address</label>
-              <input id="appEmail" name="email" type="email" required>
-            </div>
-            <div class="field full-width">
-              <label for="address">Residential address</label>
-              <textarea id="address" name="residential_address" rows="2" required></textarea>
-            </div>
-          </div>
-
-          <div class="form-section-title">
-            <span>02</span>
-            <div><h3>Education information</h3><p>Tell us about your current studies.</p></div>
-          </div>
-
-          <div class="form-grid">
-            <div class="field">
-              <label for="institution">College / University</label>
-              <input id="institution" name="institution" type="text" required>
-            </div>
-            <div class="field">
-              <label for="programme">Programme of study</label>
-              <input id="programme" name="programme" type="text" required>
-            </div>
-            <div class="field">
-              <label for="studyYear">Year of study</label>
-              <select id="studyYear" name="study_year" required>
-                <option value="">Select year</option>
-                <option>Year 1</option>
-                <option>Year 2</option>
-                <option>Year 3</option>
-                <option>Year 4</option>
-                <option>Year 5</option>
-                <option>Other</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="studentId">Student ID / Registration number</label>
-              <input id="studentId" name="student_id" type="text" required>
-            </div>
-          </div>
-
-          <div class="form-section-title">
-            <span>03</span>
-            <div><h3>Loan request</h3><p>Select the amount and repayment period.</p></div>
-          </div>
-
-          <div class="form-grid">
-            <div class="field">
-              <label for="loanAmount">Requested amount (MWK)</label>
-              <input id="loanAmount" name="amount_requested" type="number" min="20000" max="2000000" step="1000" placeholder="e.g. 100000" required>
-              <small>Minimum MWK 20,000 · Maximum MWK 2,000,000</small>
-            </div>
-            <div class="field">
-              <label for="loanTerm">Repayment period</label>
-              <select id="loanTerm" name="loan_term" required>
-                <option value="">Select period</option>
-                <option value="1">1 week – 20% interest</option>
-                <option value="2">2 weeks – 30% interest</option>
-                <option value="3">3 weeks – 40% interest</option>
-                <option value="4">4 weeks – 50% interest</option>
-              </select>
-            </div>
-            <div class="field full-width">
-              <label for="loanPurpose">Purpose of loan</label>
-              <textarea id="loanPurpose" name="purpose" rows="3" placeholder="Explain what you intend to use the loan for..." required></textarea>
-            </div>
-          </div>
-
-          <div class="estimate-card">
-            <h3>Repayment estimate</h3>
-            <p class="muted">Your estimate updates when you select an amount and repayment period.</p>
-            <div class="estimate-row"><span>Requested amount</span><strong id="estimatePrincipal">MWK 0</strong></div>
-            <div class="estimate-row"><span>Interest rate</span><strong id="estimateRate">—</strong></div>
-            <div class="estimate-row"><span>Interest amount</span><strong id="estimateInterest">MWK 0</strong></div>
-            <div class="estimate-row total-row"><span>Total repayment</span><strong id="estimateTotal">MWK 0</strong></div>
-            <div class="estimate-row"><span>Estimated due date</span><strong id="estimateDueDate">—</strong></div>
-            <small>Estimate only. Final terms and any approval decision must be confirmed by CampusCash Malawi.</small>
-          </div>
-
-          <div class="form-section-title">
-            <span>04</span>
-            <div><h3>Collateral information</h3><p>Collateral is mandatory for every application.</p></div>
-          </div>
-
-          <div class="form-grid">
-            <div class="field">
-              <label for="collateralType">Collateral type</label>
-              <select id="collateralType" name="collateral_type" required>
-                <option value="">Select collateral type</option>
-                <option>Electronic device</option>
-                <option>Computer / Laptop</option>
-                <option>Mobile phone</option>
-                <option>Household property</option>
-                <option>Business equipment</option>
-                <option>Other property</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="collateralValue">Estimated value (MWK)</label>
-              <input id="collateralValue" name="collateral_estimated_value" type="number" min="1" step="1000" required>
-            </div>
-            <div class="field full-width">
-              <label for="collateralDescription">Collateral description</label>
-              <textarea id="collateralDescription" name="collateral_description" rows="3" placeholder="Describe the item, make, model, condition and other identifying details..." required></textarea>
-            </div>
-          </div>
-
-          <div class="notice-section">
-            <strong>Physical collateral verification is required.</strong>
-            <p>Submitting this online application does not mean your collateral has been verified. CampusCash staff will contact you to arrange an in-person physical inspection. Do not hand over property before receiving official instructions and documentation.</p>
-            <label class="check-label">
-              <input type="checkbox" name="collateral_confirmation" value="yes" required>
-              I confirm that the collateral described is available for physical verification.
-            </label>
-          </div>
-
-          <div class="form-section-title">
-            <span>05</span>
-            <div><h3>Emergency contact</h3><p>Provide someone we may contact when necessary.</p></div>
-          </div>
-
-          <div class="form-grid">
-            <div class="field">
-              <label for="emergencyName">Emergency contact name</label>
-              <input id="emergencyName" name="emergency_contact_name" type="text" required>
-            </div>
-            <div class="field">
-              <label for="emergencyPhone">Emergency contact phone</label>
-              <input id="emergencyPhone" name="emergency_contact_phone" type="tel" required>
-            </div>
-            <div class="field full-width">
-              <label for="emergencyRelationship">Relationship</label>
-              <input id="emergencyRelationship" name="emergency_contact_relationship" type="text" required>
-            </div>
-          </div>
-
-          <div class="consent">
-            <label class="check-label">
-              <input type="checkbox" name="information_confirmation" value="yes" required>
-              I confirm that the information I have provided is accurate and complete.
-            </label>
-            <label class="check-label">
-              <input type="checkbox" name="terms_confirmation" value="yes" required>
-              I have reviewed the displayed repayment estimate and understand that approval is not guaranteed.
-            </label>
-          </div>
-
-          <button class="btn btn-primary btn-full submit-button" type="submit">Submit Loan Application</button>
-          <p id="applicationMessage" class="success-message hidden"></p>
-        </form>
-
-        <aside class="side-information">
-          <div class="info-card">
-            <span class="eyebrow">IMPORTANT INFORMATION</span>
-            <h3>Before you apply</h3>
-            <ul>
-              <li>You must create an account and sign in.</li>
-              <li>Provide accurate student and contact details.</li>
-              <li>Every application requires collateral information.</li>
-              <li>Physical collateral verification is required.</li>
-              <li>Submitting an application does not guarantee approval.</li>
-            </ul>
-          </div>
-
-          <div class="info-card gold-card">
-            <h3>Repayment rates</h3>
-            <div class="rate-row"><span>1 week</span><strong>20%</strong></div>
-            <div class="rate-row"><span>2 weeks</span><strong>30%</strong></div>
-            <div class="rate-row"><span>3 weeks</span><strong>40%</strong></div>
-            <div class="rate-row"><span>4 weeks</span><strong>50%</strong></div>
-            <small>Rates are flat one-time interest rates on the requested principal, subject to final confirmation and applicable legal requirements.</small>
-          </div>
-        </aside>
-      </div>
-    </section>
-
-    <section class="section dashboard-section" id="dashboard">
-      <div class="section-heading">
-        <span class="eyebrow">STUDENT PORTAL</span>
-        <h2>Your student dashboard</h2>
-        <p>View your applications, collateral review and repayment information.</p>
-      </div>
-
-      <div class="dashboard-card">
-        <div class="dashboard-header">
-          <div>
-            <span class="eyebrow">MY ACCOUNT</span>
-            <h3>Application overview</h3>
-          </div>
-          <span class="status-pill">Student portal</span>
-        </div>
-
-        <div id="studentDashboard">
-          <p class="muted">Sign in to view your applications and account information. Your dashboard will display your application status once the system is connected.</p>
-        </div>
-
-        <div id="applicationList" class="application-list"></div>
-      </div>
-    </section>
-
-    <section class="section admin-section" id="admin">
-      <div class="section-heading">
-        <span class="eyebrow">STAFF PORTAL</span>
-        <h2>Administration</h2>
-        <p>Authorized staff access only. Administrative permissions must be verified securely by the backend.</p>
-      </div>
-      <div class="dashboard-card">
-        <div id="adminDashboard">
-          <p class="muted">The secure administration dashboard will be enabled after the database and server-side admin authorization are configured.</p>
-        </div>
       </div>
     </section>
   </main>
