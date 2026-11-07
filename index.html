@@ -1,109 +1,424 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#103d32">
-  <meta name="description" content="CampusCash Malawi - Student registration and loan application portal.">
+  <meta name="description" content="CampusCash Malawi - Student registration, loan applications and repayment management.">
   <title>CampusCash Malawi | Student Finance</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
   <header class="topbar">
-    <a class="brand" href="#"><span class="brand-mark">CC</span><span>CampusCash <small>Malawi</small></span></a>
-    <nav><a href="#how">How it works</a><a href="#apply">Apply</a><a href="#account">Student account</a></nav>
-    <a class="btn btn-outline nav-apply" href="#apply">Apply for a loan</a>
+    <a class="brand" href="#home">
+      <span class="brand-mark">CC</span>
+      <span>
+        <strong>CampusCash</strong>
+        <small>MALAWI</small>
+      </span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="#home">Home</a>
+      <a href="#apply">Apply for a Loan</a>
+      <a href="#dashboard">Student Dashboard</a>
+      <a href="#about">About</a>
+    </nav>
+
+    <a class="nav-button" href="#account">Get Started</a>
   </header>
 
   <main>
-    <section class="hero">
-      <div class="hero-copy">
-        <span class="eyebrow">STUDENT FINANCE • MALAWI</span>
-        <h1>Move your education <em>forward.</em></h1>
-        <p>Apply for student financial support through a simple, transparent application process. Register, submit your details and track your application.</p>
-        <div class="hero-actions"><a class="btn btn-gold" href="#apply">Start an application <span>→</span></a><a class="text-link" href="#how">See how it works</a></div>
-        <div class="trust-line"><span class="check">✓</span> Secure account access <span class="dot">•</span> Application tracking</div>
-      </div>
-      <div class="hero-panel">
-        <div class="panel-top"><span class="live-dot"></span> STUDENT PORTAL <span class="panel-menu">•••</span></div>
-        <div class="panel-title">Your next step starts here</div>
-        <div class="mini-card"><div class="mini-icon">01</div><div><b>Create your account</b><small>Register with your details</small></div><span>→</span></div>
-        <div class="mini-card"><div class="mini-icon">02</div><div><b>Submit an application</b><small>Tell us about your studies</small></div><span>→</span></div>
-        <div class="mini-card"><div class="mini-icon">03</div><div><b>Track your progress</b><small>Check your application status</small></div><span>→</span></div>
-        <div class="panel-foot"><span>CampusCash Malawi</span><span>Student support portal</span></div>
-      </div>
-    </section>
-
-    <section class="stats">
-      <div><b>Simple</b><span>Online registration</span></div>
-      <div><b>Clear</b><span>Application process</span></div>
-      <div><b>Accessible</b><span>Mobile-friendly portal</span></div>
-    </section>
-
-    <section id="how" class="section">
-      <div class="section-heading"><span class="eyebrow">GET STARTED</span><h2>How CampusCash works</h2><p>Follow these steps to submit your request for consideration.</p></div>
-      <div class="steps">
-        <article><span>01</span><h3>Create an account</h3><p>Register using your name, email address and a secure password.</p></article>
-        <article><span>02</span><h3>Complete your profile</h3><p>Provide your institution, programme and contact information.</p></article>
-        <article><span>03</span><h3>Apply and track</h3><p>Submit your requested amount and check your application status.</p></article>
-      </div>
-    </section>
-
-    <section id="account" class="section account-section">
-      <div class="section-heading"><span class="eyebrow">STUDENT ACCESS</span><h2>Your student account</h2><p>Create an account or sign in to continue.</p></div>
-      <div class="account-grid">
-        <form id="registerForm" class="form-card">
-          <h3>Create an account</h3>
-          <label>Full name<input name="full_name" required placeholder="Your full name"></label>
-          <label>Email address<input name="email" type="email" required placeholder="you@example.com"></label>
-          <label>Phone number<input name="phone" required placeholder="+265..."></label>
-          <label>Password<input name="password" type="password" minlength="6" required placeholder="At least 6 characters"></label>
-          <button class="btn btn-green full" type="submit">Register</button>
-          <p class="form-note">You may need to confirm your email before signing in.</p>
-        </form>
-        <form id="loginForm" class="form-card">
-          <h3>Welcome back</h3>
-          <label>Email address<input name="email" type="email" required placeholder="you@example.com"></label>
-          <label>Password<input name="password" type="password" required placeholder="Your password"></label>
-          <button class="btn btn-dark full" type="submit">Sign in</button>
-          <div id="sessionBox" class="session-box hidden"></div>
-          <button id="logoutBtn" class="btn btn-outline full hidden" type="button">Sign out</button>
-          <p class="form-note">Use the email and password linked to your account.</p>
-        </form>
-      </div>
-    </section>
-
-    <section id="apply" class="section apply-section">
-      <div class="section-heading"><span class="eyebrow">LOAN REQUEST</span><h2>Student loan application</h2><p>Sign in first, then complete the application form.</p></div>
-      <form id="applicationForm" class="form-card application-form">
-        <div class="form-intro"><div><h3>Application details</h3><p>Enter accurate information so your request can be reviewed.</p></div><span class="secure-label">🔒 Private submission</span></div>
-        <div class="form-grid">
-          <label>Full name<input name="full_name" required placeholder="As shown on your student documents"></label>
-          <label>Phone number<input name="phone" required placeholder="+265..."></label>
-          <label>College / University<input name="institution" required placeholder="Name of institution"></label>
-          <label>Programme / Course<input name="programme" required placeholder="Your programme"></label>
-          <label>Year of study<select name="study_year" required><option value="">Select year</option><option>First year</option><option>Second year</option><option>Third year</option><option>Fourth year</option><option>Other</option></select></label>
-          <label>Amount requested (MWK)<input name="amount_requested" type="number" min="1" required placeholder="e.g. 150000"></label>
-          <label class="wide">Purpose of loan<textarea name="purpose" rows="4" required placeholder="Explain what the financial support will be used for"></textarea></label>
+    <section class="hero" id="home">
+      <div class="hero-content">
+        <span class="eyebrow">STUDENT FINANCIAL SUPPORT</span>
+        <h1>Empowering Students.<br><span>Supporting Education.</span></h1>
+        <p>
+          CampusCash Malawi provides a digital platform for students to
+          register, apply for financial support and follow their loan
+          application progress.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-gold" href="#apply">Apply for a Loan</a>
+          <a class="btn btn-outline" href="#account">Student Account</a>
         </div>
-        <label class="consent"><input type="checkbox" required> I confirm that the information provided is accurate and agree that it may be used to assess this application.</label>
-        <button class="btn btn-gold" type="submit">Submit application <span>→</span></button>
-        <p class="form-note">Submitting an application does not guarantee approval or payment. Terms, eligibility and any security requirements must be confirmed by CampusCash Malawi.</p>
-      </form>
-      <div id="applicationMessage" class="notice hidden" role="status"></div>
+        <div class="hero-note">
+          <span class="status-dot"></span>
+          Student applications are subject to review and approval.
+        </div>
+      </div>
+
+      <div class="hero-panel">
+        <div class="panel-top">
+          <span>CampusCash Malawi</span>
+          <span class="panel-icon">✦</span>
+        </div>
+        <p class="panel-label">Student loan range</p>
+        <h2>MWK 20,000 <span>–</span></h2>
+        <h2 class="panel-amount">MWK 2,000,000</h2>
+        <div class="panel-line"></div>
+        <div class="panel-feature">
+          <span>01</span>
+          <div><strong>Register</strong><small>Create your student account</small></div>
+        </div>
+        <div class="panel-feature">
+          <span>02</span>
+          <div><strong>Apply</strong><small>Submit your loan details and collateral</small></div>
+        </div>
+        <div class="panel-feature">
+          <span>03</span>
+          <div><strong>Track</strong><small>Follow your application progress</small></div>
+        </div>
+      </div>
     </section>
 
-    <section class="notice-section">
-      <div><span class="eyebrow">IMPORTANT</span><h2>Apply with confidence.</h2><p>CampusCash Malawi should publish its verified eligibility rules, fees, interest rates, repayment schedule, privacy policy and contact details before accepting live applications. Never submit passwords, PINs or mobile-money codes to anyone.</p></div>
+    <section class="trust-strip">
+      <div><strong>Student-focused</strong><span>Designed for education support</span></div>
+      <div><strong>Transparent terms</strong><span>See repayment estimates before applying</span></div>
+      <div><strong>Application tracking</strong><span>Follow your application status online</span></div>
+    </section>
+
+    <section class="section" id="about">
+      <div class="section-heading">
+        <span class="eyebrow">HOW IT WORKS</span>
+        <h2>Your application journey</h2>
+        <p>A clear process from account registration to application review.</p>
+      </div>
+
+      <div class="steps-grid">
+        <article class="step-card">
+          <span class="step-number">01</span>
+          <h3>Create an account</h3>
+          <p>Register using your email address and create a secure student account.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-number">02</span>
+          <h3>Submit your application</h3>
+          <p>Provide your education details, requested amount and collateral information.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-number">03</span>
+          <h3>Collateral verification</h3>
+          <p>CampusCash staff will contact you to arrange physical collateral verification.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-number">04</span>
+          <h3>Review and decision</h3>
+          <p>Track your application and any decision or repayment information through your account.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section account-section" id="account">
+      <div class="section-heading">
+        <span class="eyebrow">STUDENT ACCESS</span>
+        <h2>Welcome to CampusCash</h2>
+        <p>Create an account or sign in to access your student services.</p>
+      </div>
+
+      <div class="account-grid">
+        <div class="form-card">
+          <h3>Create a student account</h3>
+          <p class="muted">Register with a valid email address.</p>
+
+          <form id="registerForm">
+            <label for="registerName">Full name</label>
+            <input id="registerName" name="full_name" type="text" placeholder="Enter your full name" required>
+
+            <label for="registerPhone">Phone number</label>
+            <input id="registerPhone" name="phone" type="tel" placeholder="+265..." required>
+
+            <label for="registerEmail">Email address</label>
+            <input id="registerEmail" name="email" type="email" placeholder="you@example.com" required>
+
+            <label for="registerPassword">Password</label>
+            <input id="registerPassword" name="password" type="password" minlength="8" placeholder="At least 8 characters" required>
+
+            <button class="btn btn-primary btn-full" type="submit">Create Account</button>
+          </form>
+        </div>
+
+        <div class="form-card">
+          <h3>Student login</h3>
+          <p class="muted">Already registered? Sign in here.</p>
+
+          <form id="loginForm">
+            <label for="loginEmail">Email address</label>
+            <input id="loginEmail" name="email" type="email" placeholder="Enter your email" required>
+
+            <label for="loginPassword">Password</label>
+            <input id="loginPassword" name="password" type="password" placeholder="Enter your password" required>
+
+            <button class="btn btn-dark btn-full" type="submit">Sign In</button>
+          </form>
+
+          <div id="sessionBox" class="session-box hidden"></div>
+          <button id="logoutBtn" class="btn btn-light btn-full hidden" type="button">Sign Out</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section application-section" id="apply">
+      <div class="section-heading">
+        <span class="eyebrow">LOAN APPLICATION</span>
+        <h2>Apply for student financial support</h2>
+        <p>Complete the application carefully. All applications are subject to review.</p>
+      </div>
+
+      <div class="application-layout">
+        <form id="applicationForm" class="form-card application-form">
+          <div class="form-section-title">
+            <span>01</span>
+            <div><h3>Personal information</h3><p>Your contact and identification details.</p></div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="appFullName">Full name</label>
+              <input id="appFullName" name="full_name" type="text" required>
+            </div>
+            <div class="field">
+              <label for="dateOfBirth">Date of birth</label>
+              <input id="dateOfBirth" name="date_of_birth" type="date" required>
+            </div>
+            <div class="field">
+              <label for="appPhone">Phone number</label>
+              <input id="appPhone" name="phone" type="tel" placeholder="+265..." required>
+            </div>
+            <div class="field">
+              <label for="appEmail">Email address</label>
+              <input id="appEmail" name="email" type="email" required>
+            </div>
+            <div class="field full-width">
+              <label for="address">Residential address</label>
+              <textarea id="address" name="residential_address" rows="2" required></textarea>
+            </div>
+          </div>
+
+          <div class="form-section-title">
+            <span>02</span>
+            <div><h3>Education information</h3><p>Tell us about your current studies.</p></div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="institution">College / University</label>
+              <input id="institution" name="institution" type="text" required>
+            </div>
+            <div class="field">
+              <label for="programme">Programme of study</label>
+              <input id="programme" name="programme" type="text" required>
+            </div>
+            <div class="field">
+              <label for="studyYear">Year of study</label>
+              <select id="studyYear" name="study_year" required>
+                <option value="">Select year</option>
+                <option>Year 1</option>
+                <option>Year 2</option>
+                <option>Year 3</option>
+                <option>Year 4</option>
+                <option>Year 5</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="studentId">Student ID / Registration number</label>
+              <input id="studentId" name="student_id" type="text" required>
+            </div>
+          </div>
+
+          <div class="form-section-title">
+            <span>03</span>
+            <div><h3>Loan request</h3><p>Select the amount and repayment period.</p></div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="loanAmount">Requested amount (MWK)</label>
+              <input id="loanAmount" name="amount_requested" type="number" min="20000" max="2000000" step="1000" placeholder="e.g. 100000" required>
+              <small>Minimum MWK 20,000 · Maximum MWK 2,000,000</small>
+            </div>
+            <div class="field">
+              <label for="loanTerm">Repayment period</label>
+              <select id="loanTerm" name="loan_term" required>
+                <option value="">Select period</option>
+                <option value="1">1 week – 20% interest</option>
+                <option value="2">2 weeks – 30% interest</option>
+                <option value="3">3 weeks – 40% interest</option>
+                <option value="4">4 weeks – 50% interest</option>
+              </select>
+            </div>
+            <div class="field full-width">
+              <label for="loanPurpose">Purpose of loan</label>
+              <textarea id="loanPurpose" name="purpose" rows="3" placeholder="Explain what you intend to use the loan for..." required></textarea>
+            </div>
+          </div>
+
+          <div class="estimate-card">
+            <h3>Repayment estimate</h3>
+            <p class="muted">Your estimate updates when you select an amount and repayment period.</p>
+            <div class="estimate-row"><span>Requested amount</span><strong id="estimatePrincipal">MWK 0</strong></div>
+            <div class="estimate-row"><span>Interest rate</span><strong id="estimateRate">—</strong></div>
+            <div class="estimate-row"><span>Interest amount</span><strong id="estimateInterest">MWK 0</strong></div>
+            <div class="estimate-row total-row"><span>Total repayment</span><strong id="estimateTotal">MWK 0</strong></div>
+            <div class="estimate-row"><span>Estimated due date</span><strong id="estimateDueDate">—</strong></div>
+            <small>Estimate only. Final terms and any approval decision must be confirmed by CampusCash Malawi.</small>
+          </div>
+
+          <div class="form-section-title">
+            <span>04</span>
+            <div><h3>Collateral information</h3><p>Collateral is mandatory for every application.</p></div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="collateralType">Collateral type</label>
+              <select id="collateralType" name="collateral_type" required>
+                <option value="">Select collateral type</option>
+                <option>Electronic device</option>
+                <option>Computer / Laptop</option>
+                <option>Mobile phone</option>
+                <option>Household property</option>
+                <option>Business equipment</option>
+                <option>Other property</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="collateralValue">Estimated value (MWK)</label>
+              <input id="collateralValue" name="collateral_estimated_value" type="number" min="1" step="1000" required>
+            </div>
+            <div class="field full-width">
+              <label for="collateralDescription">Collateral description</label>
+              <textarea id="collateralDescription" name="collateral_description" rows="3" placeholder="Describe the item, make, model, condition and other identifying details..." required></textarea>
+            </div>
+          </div>
+
+          <div class="notice-section">
+            <strong>Physical collateral verification is required.</strong>
+            <p>Submitting this online application does not mean your collateral has been verified. CampusCash staff will contact you to arrange an in-person physical inspection. Do not hand over property before receiving official instructions and documentation.</p>
+            <label class="check-label">
+              <input type="checkbox" name="collateral_confirmation" value="yes" required>
+              I confirm that the collateral described is available for physical verification.
+            </label>
+          </div>
+
+          <div class="form-section-title">
+            <span>05</span>
+            <div><h3>Emergency contact</h3><p>Provide someone we may contact when necessary.</p></div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="emergencyName">Emergency contact name</label>
+              <input id="emergencyName" name="emergency_contact_name" type="text" required>
+            </div>
+            <div class="field">
+              <label for="emergencyPhone">Emergency contact phone</label>
+              <input id="emergencyPhone" name="emergency_contact_phone" type="tel" required>
+            </div>
+            <div class="field full-width">
+              <label for="emergencyRelationship">Relationship</label>
+              <input id="emergencyRelationship" name="emergency_contact_relationship" type="text" required>
+            </div>
+          </div>
+
+          <div class="consent">
+            <label class="check-label">
+              <input type="checkbox" name="information_confirmation" value="yes" required>
+              I confirm that the information I have provided is accurate and complete.
+            </label>
+            <label class="check-label">
+              <input type="checkbox" name="terms_confirmation" value="yes" required>
+              I have reviewed the displayed repayment estimate and understand that approval is not guaranteed.
+            </label>
+          </div>
+
+          <button class="btn btn-primary btn-full submit-button" type="submit">Submit Loan Application</button>
+          <p id="applicationMessage" class="success-message hidden"></p>
+        </form>
+
+        <aside class="side-information">
+          <div class="info-card">
+            <span class="eyebrow">IMPORTANT INFORMATION</span>
+            <h3>Before you apply</h3>
+            <ul>
+              <li>You must create an account and sign in.</li>
+              <li>Provide accurate student and contact details.</li>
+              <li>Every application requires collateral information.</li>
+              <li>Physical collateral verification is required.</li>
+              <li>Submitting an application does not guarantee approval.</li>
+            </ul>
+          </div>
+
+          <div class="info-card gold-card">
+            <h3>Repayment rates</h3>
+            <div class="rate-row"><span>1 week</span><strong>20%</strong></div>
+            <div class="rate-row"><span>2 weeks</span><strong>30%</strong></div>
+            <div class="rate-row"><span>3 weeks</span><strong>40%</strong></div>
+            <div class="rate-row"><span>4 weeks</span><strong>50%</strong></div>
+            <small>Rates are flat one-time interest rates on the requested principal, subject to final confirmation and applicable legal requirements.</small>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section dashboard-section" id="dashboard">
+      <div class="section-heading">
+        <span class="eyebrow">STUDENT PORTAL</span>
+        <h2>Your student dashboard</h2>
+        <p>View your applications, collateral review and repayment information.</p>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="dashboard-header">
+          <div>
+            <span class="eyebrow">MY ACCOUNT</span>
+            <h3>Application overview</h3>
+          </div>
+          <span class="status-pill">Student portal</span>
+        </div>
+
+        <div id="studentDashboard">
+          <p class="muted">Sign in to view your applications and account information. Your dashboard will display your application status once the system is connected.</p>
+        </div>
+
+        <div id="applicationList" class="application-list"></div>
+      </div>
+    </section>
+
+    <section class="section admin-section" id="admin">
+      <div class="section-heading">
+        <span class="eyebrow">STAFF PORTAL</span>
+        <h2>Administration</h2>
+        <p>Authorized staff access only. Administrative permissions must be verified securely by the backend.</p>
+      </div>
+      <div class="dashboard-card">
+        <div id="adminDashboard">
+          <p class="muted">The secure administration dashboard will be enabled after the database and server-side admin authorization are configured.</p>
+        </div>
+      </div>
     </section>
   </main>
 
-  <footer><a class="brand footer-brand" href="#"><span class="brand-mark">CC</span><span>CampusCash <small>Malawi</small></span></a><span>© <span id="year"></span> CampusCash Malawi. All rights reserved.</span></footer>
-  <div id="toast" class="toast" role="status"></div>
+  <footer class="footer">
+    <div class="footer-brand">
+      <span class="brand-mark">CC</span>
+      <div><strong>CampusCash Malawi</strong><small>Empowering Students. Supporting Education.</small></div>
+    </div>
+    <p>© <span id="year"></span> CampusCash Malawi. All rights reserved.</p>
+    <p class="footer-note">Applications are subject to assessment, collateral verification, approval and applicable legal requirements.</p>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
   <script src="app.js"></script>
 </body>
 </html>
