@@ -1,104 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Learn more about CampusCash Malawi and how the student loan platform works." />
-  <title>About | CampusCash Malawi</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#103d32">
+  <meta name="description" content="Learn about CampusCash Malawi, its student financing process, transparency commitments and support contacts.">
+  <title>About CampusCash Malawi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="index.html">
-      <span class="brand-mark">CC</span>
-      <span>
-        <strong>CampusCash</strong>
-        <small>MALAWI</small>
-      </span>
-    </a>
-
-    <nav class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="apply.html">Apply for a Loan</a>
-      <a href="dashboard.html">Student Dashboard</a>
-      <a href="login.html">Login</a>
-      <a href="register.html">Register</a>
-    </nav>
-
+    <a class="brand" href="index.html" aria-label="CampusCash Malawi home"><span class="brand-mark">CC</span><span><strong>CampusCash</strong><small>MALAWI</small></span></a>
+    <nav class="nav-links" aria-label="Main navigation"><a href="index.html">Home</a><a href="about.html" aria-current="page">About</a><a href="apply.html">Apply for a Loan</a><a href="dashboard.html">Student Dashboard</a><a href="login.html">Login</a><a href="register.html">Register</a></nav>
     <a class="nav-button" href="register.html">Get Started</a>
   </header>
-
   <main>
-    <section class="page-hero">
-      <div class="page-hero-inner">
-        <span class="eyebrow">ABOUT US</span>
-        <h1>Helping students access opportunity with confidence.</h1>
-        <p>
-          CampusCash Malawi was created to make financial support easier for students who need a small, transparent loan to continue their education.
-        </p>
-      </div>
+    <section class="page-hero about-hero"><div class="page-hero-inner"><span class="eyebrow">ABOUT CAMPUSCASH MALAWI</span><h1>Education support should start with clarity.</h1><p>CampusCash Malawi is a digital student-financing platform intended to help students submit a request, understand an illustrative repayment estimate and track the review process. Applications are assessed individually; submitting a request does not guarantee approval or disbursement.</p><div class="hero-actions"><a class="btn btn-gold" href="apply.html">Explore an application</a><a class="btn btn-outline" href="index.html#calculator">Estimate repayment</a></div></div></section>
+    <section class="section"><div class="section-heading"><span class="eyebrow">OUR PURPOSE</span><h2>Opportunity, supported by responsible information</h2><p>We aim to make the steps and expectations easier to understand for students and their families.</p></div>
+      <div class="page-grid"><article class="info-block"><span class="feature-icon" aria-hidden="true">◎</span><h3>Our mission</h3><p>To provide a clear, accessible digital pathway for students to request education-related financial support and follow application progress.</p></article><article class="info-block"><span class="feature-icon" aria-hidden="true">↗</span><h3>Our vision</h3><p>A student support experience where applicants can understand the process, ask questions and make informed decisions about any financing offer.</p></article><article class="info-block"><span class="feature-icon" aria-hidden="true">◇</span><h3>Our objectives</h3><ul><li>Make the application journey easier to navigate.</li><li>Show repayment estimates before submission.</li><li>Support transparent status tracking.</li><li>Encourage careful, responsible borrowing decisions.</li></ul></article></div>
     </section>
-
-    <section class="section">
-      <div class="page-grid">
-        <article class="info-block">
-          <h3>Our mission</h3>
-          <p>We aim to provide a secure and student-friendly platform for education financing while keeping communication clear and approachable.</p>
-        </article>
-
-        <article class="info-block">
-          <h3>How it works</h3>
-          <ul>
-            <li>Create a student account.</li>
-            <li>Submit your application and purpose.</li>
-            <li>Complete collateral verification.</li>
-            <li>Track your application status online.</li>
-          </ul>
-        </article>
-
-        <article class="info-block">
-          <h3>Why students choose us</h3>
-          <p>We focus on simple steps, clear repayment expectations, and a digital experience that reduces the stress of applying for support.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="section account-section">
-      <div class="section-heading">
-        <span class="eyebrow">OUR VALUES</span>
-        <h2>Built with student needs in mind</h2>
-      </div>
-
-      <div class="page-grid">
-        <div class="info-block">
-          <h3>Transparency</h3>
-          <p>Applicants can see how repayment estimates are calculated before submitting a loan request.</p>
-        </div>
-
-        <div class="info-block">
-          <h3>Access</h3>
-          <p>We strive to keep the process accessible, mobile-friendly, and easy to navigate for students.</p>
-        </div>
-
-        <div class="info-block">
-          <h3>Support</h3>
-          <p>CampusCash staff review applications and arrange verification steps to guide students through the process.</p>
-        </div>
-      </div>
-    </section>
+    <section class="section account-section"><div class="story-layout"><div><span class="eyebrow">WHY WE CREATED THE PLATFORM</span><h2 class="story-title">A more understandable route to student support</h2></div><div class="story-copy"><p>Students can face urgent education-related costs and find it difficult to understand where to start. CampusCash Malawi was created to bring the initial request, estimate and progress updates together in one digital experience.</p><p>The platform is a way to submit and track a request—not a guarantee of available funds, approval, a particular timeline or a lending outcome. Applicants should review all final written terms and ask questions before accepting any offer.</p></div></div></section>
+    <section class="section"><div class="section-heading"><span class="eyebrow">THE PROCESS</span><h2>How student financing requests work</h2><p>Each application is reviewed; steps and decisions may depend on the information provided.</p></div><div class="steps-grid"><article class="step-card"><span class="step-number">01</span><h3>Register securely</h3><p>Create an account using your email. If email confirmation is enabled, complete that step before signing in.</p></article><article class="step-card"><span class="step-number">02</span><h3>Submit details</h3><p>Provide student, education, contact, purpose and requested-loan details through the application form.</p></article><article class="step-card"><span class="step-number">03</span><h3>Collateral review</h3><p>Share a description and estimated value. Staff may arrange a physical verification; submission is not verification.</p></article><article class="step-card"><span class="step-number">04</span><h3>Review and track</h3><p>Review status updates in your dashboard. Before accepting any offer, check the approved amount, all charges and due date in writing.</p></article></div></section>
+    <section class="section account-section"><div class="section-heading"><span class="eyebrow">OUR COMMITMENT</span><h2>Transparency and responsible lending</h2><p>We want students to have the information to ask questions and make a considered choice.</p></div><div class="page-grid"><article class="info-block"><h3>Clear estimates</h3><p>The calculator shows the principal, selected one-time flat rate, interest and total estimate. Interest = principal × rate; total = principal + interest. It does not compound interest.</p></article><article class="info-block"><h3>Review final terms</h3><p>An estimate is not an offer or approval. Confirm the final approved amount, repayment schedule, due date and every applicable charge before accepting.</p></article><article class="info-block"><h3>Borrow thoughtfully</h3><p>Consider whether repayment is manageable for you. Ask for an explanation of any term you do not understand and do not proceed under pressure.</p></article></div></section>
+    <section class="section"><div class="section-heading"><span class="eyebrow">COLLATERAL VERIFICATION</span><h2>Student application and verification</h2></div><div class="page-grid two-column-grid"><article class="info-block"><h3>At application</h3><p>Enter accurate details, select a request amount and repayment period, and describe proposed collateral honestly. Do not send passwords, account recovery codes or unnecessary sensitive documents through informal channels.</p></article><article class="info-block"><h3>Verification and decision</h3><p>Authorised staff review collateral details and may arrange a physical check. The platform records the status; only a properly completed review can establish verification. Ask staff to explain how information or property will be handled before proceeding.</p></article></div></section>
+    <section class="section account-section" aria-labelledby="about-faq-title"><div class="section-heading"><span class="eyebrow">HELP CENTRE</span><h2 id="about-faq-title">Frequently asked questions</h2></div><div class="faq-list"><details><summary>What does CampusCash Malawi do?</summary><p>It provides a digital platform to register, submit student financing requests and track recorded application status. A submitted request does not guarantee a loan.</p></details><details><summary>What are the rates shown by the calculator?</summary><p>The published calculator uses flat one-time rates: 1 week 20%, 2 weeks 30%, 3 weeks 40%, and 4 weeks 50%. Interest = principal × rate, and total repayment = principal + interest. No compounding or additional fee is included in that calculation.</p></details><details><summary>How much may I request?</summary><p>The current form range is MWK 20,000–2,000,000. The amount finally approved, if any, may differ and must be confirmed in writing.</p></details><details><summary>How is collateral checked?</summary><p>Applicants provide collateral details and staff may arrange physical verification. The status remains pending until the verification process is completed and recorded.</p></details><details><summary>Can I update or delete my application?</summary><p>The website currently provides application status tracking. Contact support to ask how to correct information or request assistance; do not assume an application can be changed or deleted through the dashboard.</p></details><details><summary>Does the site send support emails?</summary><p>Contact links open your email or WhatsApp application. The website does not claim that a message has been delivered. Supabase registration confirmation depends on the project's email settings.</p></details></div></section>
+    <section class="section contact-section" id="contact"><div class="contact-panel"><div><span class="eyebrow">CONTACT & SUPPORT</span><h2>We’re here to help you find the right information.</h2><p>Platform support: Emo Global Solutions. For application decisions, collateral status or loan terms, use the official CampusCash Malawi support channel provided to you.</p><p><strong>Email:</strong> <a href="mailto:emoglobalsolutions@gmail.com">emoglobalsolutions@gmail.com</a><br><strong>WhatsApp:</strong> <a href="https://wa.me/265990206529" target="_blank" rel="noopener noreferrer">+265 990 206 529</a></p></div><div class="contact-actions"><a class="btn btn-gold" href="mailto:emoglobalsolutions@gmail.com">Email support</a><a class="btn btn-outline" href="https://wa.me/265990206529" target="_blank" rel="noopener noreferrer">WhatsApp</a></div></div></section>
+    <section class="section legal-section"><div class="section-heading"><span class="eyebrow">IMPORTANT INFORMATION</span><h2>Privacy and terms</h2><p>These summaries are not substitutes for complete, reviewed policies. Please obtain and publish approved policy text before collecting real applicants’ information.</p></div><div class="page-grid two-column-grid"><article class="info-block" id="privacy-policy"><h3>Privacy information</h3><p>The application asks for personal and education information to support review and status tracking. Avoid submitting passwords or unnecessary sensitive information. The website’s data handling, retention, access, contact and deletion practices must be documented and reviewed before production use.</p><a class="text-link" href="#privacy-policy">Privacy information</a></article><article class="info-block" id="terms-of-use"><h3>Terms overview</h3><p>Using this website or submitting an application is not a loan offer, approval or guarantee of funding. A complete set of approved terms—including eligibility, rates, charges, repayment, complaints and applicable legal disclosures—must be made available before any real lending activity.</p><a class="text-link" href="#terms-of-use">Terms overview</a></article></div></section>
+    <section class="section developer-section" id="developer"><div class="developer-card"><span class="eyebrow">PLATFORM & DEVELOPER</span><p class="developer-name">CampusCash Malawi</p><p><strong>Developed by:</strong> Emo Global Solutions</p><p class="developer-motto">“The Home of Design and Digital Innovations.”</p><a class="developer-website" href="https://emoglobalsolutions.github.io/emo-global-solutions/" target="_blank" rel="noopener noreferrer">Visit Emo Global Solutions</a><div class="social-links"><a href="mailto:emoglobalsolutions@gmail.com">Email</a><a href="https://www.facebook.com/share/19MquUCNgY/" target="_blank" rel="noopener noreferrer">Facebook</a><a href="https://www.instagram.com/emoglobalsolutions?rpxt=MXVleTV1ZGxpNXN4aQ==" target="_blank" rel="noopener noreferrer">Instagram</a><a href="https://wa.me/265990206529" target="_blank" rel="noopener noreferrer">WhatsApp</a></div></div></section>
   </main>
-
-  <footer class="footer">
-    <div class="footer-brand">
-      <span class="brand-mark">CC</span>
-      <div><strong>CampusCash Malawi</strong><small>Empowering Students. Supporting Education.</small></div>
-    </div>
-    <p>© <span id="year"></span> CampusCash Malawi. All rights reserved.</p>
-  </footer>
-
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="app.js"></script>
+  <footer class="footer"><div class="footer-brand"><span class="brand-mark">CC</span><div><strong>CampusCash Malawi</strong><small>Empowering Students. Supporting Education.</small></div></div><p>© <span id="year"></span> CampusCash Malawi. All rights reserved.</p><p class="footer-note">Applications are subject to assessment, collateral verification, approval and applicable terms. An estimate is not an offer of credit.</p></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div><script src="app.js"></script>
 </body>
 </html>

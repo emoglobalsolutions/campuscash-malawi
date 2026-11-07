@@ -4,131 +4,105 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#103d32">
-  <meta name="description" content="CampusCash Malawi - Student registration, loan applications and repayment management.">
+  <meta name="description" content="CampusCash Malawi helps students explore transparent education financing, estimate repayments and track their applications.">
   <title>CampusCash Malawi | Student Finance</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-
 <body>
   <header class="topbar">
-    <a class="brand" href="index.html">
-      <span class="brand-mark">CC</span>
-      <span>
-        <strong>CampusCash</strong>
-        <small>MALAWI</small>
-      </span>
+    <a class="brand" href="index.html" aria-label="CampusCash Malawi home">
+      <span class="brand-mark">CC</span><span><strong>CampusCash</strong><small>MALAWI</small></span>
     </a>
-
-    <nav class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="apply.html">Apply for a Loan</a>
-      <a href="dashboard.html">Student Dashboard</a>
-      <a href="login.html">Login</a>
-      <a href="register.html">Register</a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html" aria-current="page">Home</a><a href="about.html">About</a><a href="apply.html">Apply for a Loan</a><a href="dashboard.html">Student Dashboard</a><a href="login.html">Login</a><a href="register.html">Register</a>
     </nav>
-
     <a class="nav-button" href="register.html">Get Started</a>
   </header>
-
   <main>
     <section class="hero" id="home">
       <div class="hero-content">
         <span class="eyebrow">STUDENT FINANCIAL SUPPORT</span>
-        <h1>Empowering Students.<br><span>Supporting Education.</span></h1>
-        <p>
-          CampusCash Malawi provides a digital platform for students to register,
-          apply for financial support and follow their loan application progress.
-        </p>
-        <div class="hero-actions">
-          <a class="btn btn-gold" href="apply.html">Apply for a Loan</a>
-          <a class="btn btn-outline" href="register.html">Student Account</a>
-        </div>
-        <div class="hero-note">
-          <span class="status-dot"></span>
-          Student applications are subject to review and approval.
-        </div>
+        <h1>Empowering students.<br><span>Supporting education.</span></h1>
+        <p>CampusCash Malawi is a digital platform for students to explore education financing, submit a request and follow its progress. Review the estimate and terms carefully before applying.</p>
+        <div class="hero-actions"><a class="btn btn-gold" href="apply.html">Apply Now</a><a class="btn btn-outline" href="register.html">Create Student Account</a></div>
+        <div class="hero-note"><span class="status-dot"></span>Applications are subject to review, collateral verification and approval.</div>
       </div>
-
       <div class="hero-panel">
-        <div class="panel-top">
-          <span>CampusCash Malawi</span>
-          <span class="panel-icon">✦</span>
-        </div>
-        <p class="panel-label">Student loan range</p>
-        <h2>MWK 20,000 <span>–</span></h2>
-        <h2 class="panel-amount">MWK 2,000,000</h2>
+        <div class="panel-top"><span>CampusCash Malawi</span><span class="panel-icon" aria-hidden="true">✦</span></div>
+        <p class="panel-label">Requested loan range</p><h2>MWK 20,000 <span>–</span></h2><h2 class="panel-amount">MWK 2,000,000</h2>
+        <p class="panel-disclaimer">A request is not a loan offer or guarantee of approval. Final terms must be confirmed before accepting any offer.</p>
         <div class="panel-line"></div>
-        <div class="panel-feature">
-          <span>01</span>
-          <div><strong>Register</strong><small>Create your student account</small></div>
-        </div>
-        <div class="panel-feature">
-          <span>02</span>
-          <div><strong>Apply</strong><small>Submit your loan details and collateral</small></div>
-        </div>
-        <div class="panel-feature">
-          <span>03</span>
-          <div><strong>Track</strong><small>Follow your application progress</small></div>
-        </div>
+        <div class="panel-feature"><span>01</span><div><strong>Register</strong><small>Create your student account</small></div></div>
+        <div class="panel-feature"><span>02</span><div><strong>Apply</strong><small>Share your request and collateral details</small></div></div>
+        <div class="panel-feature"><span>03</span><div><strong>Track</strong><small>Follow your application status</small></div></div>
       </div>
     </section>
-
-    <section class="trust-strip">
-      <div><strong>Student-focused</strong><span>Designed for education support</span></div>
-      <div><strong>Transparent terms</strong><span>See repayment estimates before applying</span></div>
-      <div><strong>Application tracking</strong><span>Follow your application status online</span></div>
+    <section class="trust-strip" aria-label="Platform features">
+      <div><strong>Student-focused</strong><span>Designed around education support</span></div>
+      <div><strong>Clear estimates</strong><span>See the principal, interest and total</span></div>
+      <div><strong>Application tracking</strong><span>Review progress in your account</span></div>
     </section>
-
-    <section class="section" id="about-home">
-      <div class="section-heading">
-        <span class="eyebrow">HOW IT WORKS</span>
-        <h2>Your application journey</h2>
-        <p>A clear process from account registration to application review.</p>
+    <section class="section" aria-labelledby="benefits-title">
+      <div class="section-heading"><span class="eyebrow">A CLEARER WAY TO APPLY</span><h2 id="benefits-title">Student financing, with the details up front</h2><p>Explore the application process and estimated repayment before deciding whether to submit a request.</p></div>
+      <div class="page-grid">
+        <article class="info-block"><span class="feature-icon" aria-hidden="true">◈</span><h3>Know your estimate</h3><p>Use the calculator below to see a flat, one-time interest estimate for the selected term. It does not include undisclosed fees.</p></article>
+        <article class="info-block"><span class="feature-icon" aria-hidden="true">✓</span><h3>Understand review steps</h3><p>Applications are reviewed and collateral information may need in-person verification before a decision.</p></article>
+        <article class="info-block"><span class="feature-icon" aria-hidden="true">▤</span><h3>Track your request</h3><p>Sign in to view the status and repayment details recorded for your own application.</p></article>
       </div>
-
+    </section>
+    <section class="section calculator-section" id="calculator" aria-labelledby="calculator-title">
+      <div class="section-heading"><span class="eyebrow">PLAN BEFORE YOU APPLY</span><h2 id="calculator-title">Loan repayment calculator</h2><p>This estimate uses simple flat interest once: interest = principal × rate; total = principal + interest.</p></div>
+      <div class="calculator-card">
+        <div class="form-grid">
+          <div class="field"><label for="homeLoanAmount">Loan amount (MWK)</label><input id="homeLoanAmount" type="number" min="20000" max="2000000" step="1000" value="20000" inputmode="numeric"></div>
+          <div class="field"><label for="homeLoanTerm">Repayment period</label><select id="homeLoanTerm"><option value="1">1 week — 20%</option><option value="2">2 weeks — 30%</option><option value="3">3 weeks — 40%</option><option value="4">4 weeks — 50%</option></select></div>
+        </div>
+        <div class="estimate-card" aria-live="polite" aria-atomic="true">
+          <div class="estimate-row"><span>Principal</span><strong id="homeEstimatePrincipal">MWK 20,000</strong></div>
+          <div class="estimate-row"><span>One-time flat rate</span><strong id="homeEstimateRate">20%</strong></div>
+          <div class="estimate-row"><span>Interest (principal × rate)</span><strong id="homeEstimateInterest">MWK 4,000</strong></div>
+          <div class="estimate-row total-row"><span>Total repayment</span><strong id="homeEstimateTotal">MWK 24,000</strong></div>
+        </div>
+        <p class="calculator-note">Illustrative estimate only. No compounding is applied. Confirm the final approved amount, due date and applicable terms before accepting an offer.</p>
+        <a class="btn btn-primary" href="apply.html">Continue to application</a>
+      </div>
+    </section>
+    <section class="section" aria-labelledby="steps-title">
+      <div class="section-heading"><span class="eyebrow">HOW IT WORKS</span><h2 id="steps-title">Your application journey</h2><p>A straightforward process, with review and verification before any decision.</p></div>
       <div class="steps-grid">
-        <article class="step-card">
-          <span class="step-number">01</span>
-          <h3>Create an account</h3>
-          <p>Register using your email address and create a secure student account.</p>
-        </article>
-        <article class="step-card">
-          <span class="step-number">02</span>
-          <h3>Submit your application</h3>
-          <p>Provide your education details, requested amount and collateral information.</p>
-        </article>
-        <article class="step-card">
-          <span class="step-number">03</span>
-          <h3>Collateral verification</h3>
-          <p>CampusCash staff will contact you to arrange physical collateral verification.</p>
-        </article>
-        <article class="step-card">
-          <span class="step-number">04</span>
-          <h3>Review and decision</h3>
-          <p>Track your application and any decision or repayment information through your account.</p>
-        </article>
+        <article class="step-card"><span class="step-number">01</span><h3>Create an account</h3><p>Register using your email address and create a secure student account.</p></article>
+        <article class="step-card"><span class="step-number">02</span><h3>Submit your request</h3><p>Provide your education details, requested amount, term and collateral information.</p></article>
+        <article class="step-card"><span class="step-number">03</span><h3>Collateral verification</h3><p>Staff review the information and arrange verification where required. Submission alone is not verification.</p></article>
+        <article class="step-card"><span class="step-number">04</span><h3>Review and decision</h3><p>Check your account for status updates and review any decision and repayment details carefully.</p></article>
       </div>
+    </section>
+    <section class="section account-section" aria-labelledby="collateral-title">
+      <div class="section-heading"><span class="eyebrow">COLLATERAL</span><h2 id="collateral-title">What to expect during verification</h2><p>Submitting collateral details does not mean the item has been verified or that a request has been approved.</p></div>
+      <div class="page-grid two-column-grid">
+        <article class="info-block"><h3>When you apply</h3><p>Describe the proposed collateral honestly and provide a reasonable estimated value. Only share information needed to review your request. Keep original ownership documents secure unless an authorised staff member explains a safe verification process.</p></article>
+        <article class="info-block"><h3>During verification</h3><p>CampusCash staff may arrange a physical check and update the status after review. Ask for clarification if you are unsure what is required, and do not hand over property or pay a fee based on an unverified message.</p></article>
+      </div>
+    </section>
+    <section class="section" aria-labelledby="faq-title">
+      <div class="section-heading"><span class="eyebrow">COMMON QUESTIONS</span><h2 id="faq-title">Frequently asked questions</h2></div>
+      <div class="faq-list">
+        <details><summary>What amount can I request?</summary><p>The form accepts requests from MWK 20,000 to MWK 2,000,000. The amount requested is not a promise of approval or disbursement.</p></details>
+        <details><summary>How is the estimate calculated?</summary><p>It is a flat, one-time estimate: interest equals principal multiplied by the selected rate; total repayment equals principal plus interest. Rates shown are 20% for 1 week, 30% for 2 weeks, 40% for 3 weeks and 50% for 4 weeks. No compounding is included.</p></details>
+        <details><summary>Will every application be approved?</summary><p>No. Applications are subject to review and collateral verification. A final decision and any approved terms must be communicated before you decide whether to accept.</p></details>
+        <details><summary>How do I check collateral or application status?</summary><p>Sign in to your student dashboard. If you need clarification or your status is not clear, contact support using the details below.</p></details>
+        <details><summary>Does submitting the form send an email?</summary><p>The website does not claim to send application emails. Registration confirmation emails depend on the Supabase authentication email configuration.</p></details>
+      </div>
+    </section>
+    <section class="section contact-section" id="contact" aria-labelledby="contact-title">
+      <div class="contact-panel"><div><span class="eyebrow">CONTACT & SUPPORT</span><h2 id="contact-title">Need help with your application?</h2><p>Contact Emo Global Solutions for platform support. For loan terms or application decisions, ask CampusCash Malawi through its official support channel.</p></div><div class="contact-actions"><a class="btn btn-gold" href="mailto:emoglobalsolutions@gmail.com">Email support</a><a class="btn btn-outline" href="https://wa.me/265990206529" target="_blank" rel="noopener noreferrer">WhatsApp</a></div></div>
     </section>
   </main>
-
-  <footer class="footer">
-    <div class="footer-brand">
-      <span class="brand-mark">CC</span>
-      <div><strong>CampusCash Malawi</strong><small>Empowering Students. Supporting Education.</small></div>
-    </div>
-    <p>© <span id="year"></span> CampusCash Malawi. All rights reserved.</p>
-    <p class="footer-note">Applications are subject to assessment, collateral verification, approval and applicable legal requirements.</p>
-  </footer>
-
+  <footer class="footer"><div class="footer-brand"><span class="brand-mark">CC</span><div><strong>CampusCash Malawi</strong><small>Empowering Students. Supporting Education.</small></div></div><p>© <span id="year"></span> CampusCash Malawi. All rights reserved.</p><p class="footer-note">Applications are subject to assessment, collateral verification, approval and applicable terms. Estimates are illustrative and are not an offer of credit.</p></footer>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
   <script src="app.js"></script>
 </body>
 </html>

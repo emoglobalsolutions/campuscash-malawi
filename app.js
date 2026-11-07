@@ -210,7 +210,7 @@ async function restoreSession() {
   }
 }
 
-/* STUDENT REGISTRATION */
+/* Student registration */
 getElement("registerForm")?.addEventListener("submit", async event => {
   event.preventDefault();
   if (!supabaseClient) return toast("Supabase is not connected. Add the project URL and anon/publishable key in app.js.");
@@ -220,6 +220,7 @@ getElement("registerForm")?.addEventListener("submit", async event => {
   const phone = String(form.get("phone") || "").trim();
   const email = String(form.get("email") || "").trim();
   const password = String(form.get("password") || "");
+  if (!full_name || !phone || !email) return toast("Complete all required fields.");
   if (password.length < 8) return toast("Your password must contain at least 8 characters.");
 
   const button = formElement.querySelector("button[type=submit]");
@@ -248,7 +249,7 @@ getElement("registerForm")?.addEventListener("submit", async event => {
   }
 });
 
-/* STUDENT LOGIN */
+/* Student login */
 getElement("loginForm")?.addEventListener("submit", async event => {
   event.preventDefault();
   if (!supabaseClient) return toast("Supabase is not connected. Add the project URL and anon/publishable key in app.js.");
@@ -272,7 +273,7 @@ getElement("loginForm")?.addEventListener("submit", async event => {
   }
 });
 
-/* STUDENT LOGOUT */
+/* Student logout */
 getElement("logoutBtn")?.addEventListener("click", async () => {
   if (!supabaseClient) return;
   const { error } = await supabaseClient.auth.signOut();
@@ -282,24 +283,27 @@ getElement("logoutBtn")?.addEventListener("click", async () => {
   window.location.assign(pageUrl("login.html"));
 });
 
-/* LOAN REPAYMENT ESTIMATE */
+/* Shared repayment estimates: simple, one-time flat interest only. */
+function estimateFor(amount, term) {
+  const rate = LOAN_RATES[term];
+  if (!Number.isFinite(amount) || amount < 20000 || amount > 2000000 || !rate) return null;
+  const interest = amount * rate;
+  return { principal: amount, rate, interest, total: amount + interest };
+}
+
 function updateLoanEstimate() {
   const amountInput = getElement("loanAmount");
   const termInput = getElement("loanTerm");
   if (!amountInput || !termInput) return;
   const amount = Number(amountInput.value);
   const term = Number(termInput.value);
-  const rate = LOAN_RATES[term];
-  const validAmount = Number.isFinite(amount) && amount >= 20000 && amount <= 2000000;
-  const validTerm = Boolean(rate);
-  const principal = validAmount ? amount : 0;
-  const interest = validAmount && validTerm ? principal * rate : 0;
-  getElement("estimatePrincipal").textContent = money(principal);
-  getElement("estimateRate").textContent = validTerm ? `${rate * 100}%` : "—";
-  getElement("estimateInterest").textContent = money(interest);
-  getElement("estimateTotal").textContent = money(principal + interest);
+  const estimate = estimateFor(amount, term);
+  getElement("estimatePrincipal").textContent = money(estimate?.principal || 0);
+  getElement("estimateRate").textContent = estimate ? `${estimate.rate * 100}%` : "—";
+  getElement("estimateInterest").textContent = money(estimate?.interest || 0);
+  getElement("estimateTotal").textContent = money(estimate?.total || 0);
   let dueDate = "—";
-  if (validAmount && validTerm) {
+  if (estimate) {
     const date = new Date();
     date.setDate(date.getDate() + term * 7);
     dueDate = date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
@@ -309,7 +313,22 @@ function updateLoanEstimate() {
 getElement("loanAmount")?.addEventListener("input", updateLoanEstimate);
 getElement("loanTerm")?.addEventListener("change", updateLoanEstimate);
 
-/* STUDENT LOAN APPLICATION */
+function updateHomeCalculator() {
+  const amountInput = getElement("homeLoanAmount");
+  const termInput = getElement("homeLoanTerm");
+  if (!amountInput || !termInput) return;
+  const estimate = estimateFor(Number(amountInput.value), Number(termInput.value));
+  getElement("homeEstimatePrincipal").textContent = money(estimate?.principal || 0);
+  getElement("homeEstimateRate").textContent = estimate ? `${estimate.rate * 100}%` : "—";
+  getElement("homeEstimateInterest").textContent = money(estimate?.interest || 0);
+  getElement("homeEstimateTotal").textContent = money(estimate?.total || 0);
+  amountInput.setAttribute("aria-invalid", String(!estimate));
+}
+getElement("homeLoanAmount")?.addEventListener("input", updateHomeCalculator);
+getElement("homeLoanTerm")?.addEventListener("change", updateHomeCalculator);
+updateHomeCalculator();
+
+/* Student loan application */
 getElement("applicationForm")?.addEventListener("submit", async event => {
   event.preventDefault();
   if (!supabaseClient) return toast("Supabase is not connected. Add the project URL and anon/publishable key in app.js.");
@@ -326,14 +345,16 @@ getElement("applicationForm")?.addEventListener("submit", async event => {
   };
   const amount = Number(value("amount_requested"));
   const term = Number(value("loan_term"));
-  const rate = LOAN_RATES[term];
-  if (!Number.isFinite(amount) || amount < 20000 || amount > 2000000) return toast("Loan amount must be between MWK 20,000 and MWK 2,000,000.");
-  if (!rate) return toast("Select a valid repayment period.");
+  const estimate = estimateFor(amount, term);
+  if (!estimate) return toast("Enter an amount from MWK 20,000 to MWK 2,000,000 and select a valid repayment period.");
   for (const field of ["collateral_confirmation", "information_confirmation", "terms_confirmation"]) {
     if (value(field) !== "yes") return toast("Please confirm all required statements before submitting.");
   }
   const collateralValue = Number(value("collateral_estimated_value"));
   if (!Number.isFinite(collateralValue) || collateralValue <= 0) return toast("Enter a valid estimated collateral value.");
+  if (!value("full_name") || !value("phone") || !value("email") || !value("institution") || !value("programme") || !value("purpose")) {
+    return toast("Complete the required application details before submitting.");
+  }
 
   const applicationData = {
     full_name: value("full_name"), date_of_birth: value("date_of_birth"), phone: value("phone"), email: value("email"),
@@ -368,7 +389,7 @@ getElement("applicationForm")?.addEventListener("submit", async event => {
   }
 });
 
-/* STUDENT DASHBOARD */
+/* Student dashboard: only request the signed-in student's own records. */
 async function loadStudentDashboard() {
   const dashboard = getElement("studentDashboard");
   const list = getElement("applicationList");
@@ -377,12 +398,13 @@ async function loadStudentDashboard() {
   list.replaceChildren();
   const { data, error } = await supabaseClient
     .from("loan_applications")
-    .select("id, amount_requested, loan_term_weeks, status, created_at, total_repayment")
+    .select("id, amount_requested, approved_amount, loan_term_weeks, status, created_at, total_repayment, collateral_records(verification_status)")
     .eq("user_id", currentUser.id)
     .order("created_at", { ascending: false });
 
   if (error) {
-    dashboard.textContent = `Your dashboard could not be loaded: ${error.message}`;
+    dashboard.textContent = "Your dashboard could not be loaded. Please try again or contact support.";
+    console.error("Student dashboard query:", error);
     return;
   }
   const applications = data || [];
@@ -391,17 +413,32 @@ async function loadStudentDashboard() {
     return;
   }
   dashboard.innerHTML = `<p><strong>Total applications:</strong> ${applications.length}</p>`;
-  list.innerHTML = applications.map(application => `
-    <article class="application-item">
-      <h4>Application ${escapeHTML(String(application.id).slice(0, 8).toUpperCase())}</h4>
-      <p><strong>Requested:</strong> ${money(application.amount_requested)}</p>
-      <p><strong>Estimated repayment:</strong> ${money(application.total_repayment)}</p>
-      <p><strong>Repayment period:</strong> ${escapeHTML(application.loan_term_weeks || "—")} week(s)</p>
-      <p><strong>Status:</strong> ${escapeHTML(application.status)}</p>
-      <p><strong>Submitted:</strong> ${application.created_at ? new Date(application.created_at).toLocaleDateString("en-GB") : "—"}</p>
-      <p><strong>Collateral:</strong> Physical verification is required. Check with CampusCash staff for your verification appointment.</p>
-    </article>
-  `).join("");
+  list.innerHTML = applications.map(application => {
+    const collateral = Array.isArray(application.collateral_records) ? application.collateral_records[0] : application.collateral_records;
+    const collateralStatus = collateral?.verification_status || "Pending review";
+    return `
+      <article class="application-item">
+        <h4>Application ${escapeHTML(String(application.id).slice(0, 8).toUpperCase())}</h4>
+        <p><strong>Requested:</strong> ${money(application.amount_requested)}</p>
+        <p><strong>Approved amount:</strong> ${application.approved_amount == null ? "Not yet approved" : money(application.approved_amount)}</p>
+        <p><strong>Estimated repayment:</strong> ${money(application.total_repayment)}</p>
+        <p><strong>Repayment period:</strong> ${escapeHTML(application.loan_term_weeks || "—")} week(s)</p>
+        <p><strong>Application status:</strong> ${escapeHTML(application.status)}</p>
+        <p><strong>Collateral verification:</strong> ${escapeHTML(collateralStatus)}</p>
+        <p><strong>Submitted:</strong> ${application.created_at ? new Date(application.created_at).toLocaleDateString("en-GB") : "—"}</p>
+      </article>`;
+  }).join("");
+}
+
+/* Give existing site footers consistent developer attribution without changing other pages. */
+function setupDeveloperFooter() {
+  document.querySelectorAll(".footer").forEach(footer => {
+    if (footer.querySelector(".footer-developer")) return;
+    const attribution = document.createElement("div");
+    attribution.className = "footer-developer";
+    attribution.innerHTML = '<p><strong>Platform:</strong> CampusCash Malawi · <strong>Developed by:</strong> Emo Global Solutions</p><p><em>The Home of Design and Digital Innovations.</em></p><p><a href="https://emoglobalsolutions.github.io/emo-global-solutions/" target="_blank" rel="noopener noreferrer">Developer website</a> · <a href="mailto:emoglobalsolutions@gmail.com">Email</a> · <a href="https://wa.me/265990206529" target="_blank" rel="noopener noreferrer">WhatsApp +265 990 206 529</a></p><div class="footer-socials"><a href="https://www.facebook.com/share/19MquUCNgY/" target="_blank" rel="noopener noreferrer">Facebook</a><a href="https://www.instagram.com/emoglobalsolutions?rpxt=MXVleTV1ZGxpNXN4aQ==" target="_blank" rel="noopener noreferrer">Instagram</a></div>';
+    footer.append(attribution);
+  });
 }
 
 const yearElement = getElement("year");
@@ -409,4 +446,5 @@ if (yearElement) yearElement.textContent = new Date().getFullYear();
 loadInterfaceStyles();
 setupDropdownNavigation();
 setupPasswordVisibility();
+setupDeveloperFooter();
 setupSupabase();
