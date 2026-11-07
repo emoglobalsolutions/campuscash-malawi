@@ -1,8 +1,7 @@
 /*
  * CAMPUSCASH MALAWI
- * Supabase Auth, student loan application, and dashboard behavior.
- *
- * Configure only the public Supabase project URL and anon/publishable key below.
+ * Supabase Auth, student loan application, dashboard, navigation and form helpers.
+ * Configure only the public Supabase URL and anon/publishable key below.
  * Never place a service_role key in browser code.
  */
 const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
@@ -15,6 +14,82 @@ let authReady = false;
 const LOAN_RATES = { 1: 0.20, 2: 0.30, 3: 0.40, 4: 0.50 };
 const getElement = id => document.getElementById(id);
 const money = value => "MWK " + Number(value || 0).toLocaleString("en-US", { maximumFractionDigits: 2 });
+
+function loadInterfaceStyles() {
+  if (document.querySelector('link[data-campuscash-interface]')) return;
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = new URL("interface.css", document.baseURI).toString();
+  link.dataset.campuscashInterface = "true";
+  document.head.append(link);
+}
+
+function setupDropdownNavigation() {
+  const header = document.querySelector(".topbar");
+  const nav = header?.querySelector(".nav-links");
+  if (!header || !nav || header.querySelector(".menu-toggle")) return;
+
+  const button = document.createElement("button");
+  const navId = nav.id || "campuscash-navigation";
+  nav.id = navId;
+  button.type = "button";
+  button.className = "menu-toggle";
+  button.setAttribute("aria-label", "Open navigation menu");
+  button.setAttribute("aria-expanded", "false");
+  button.setAttribute("aria-controls", navId);
+  button.innerHTML = '<span class="menu-toggle-dots" aria-hidden="true"><i></i><i></i><i></i></span>';
+  header.insertBefore(button, nav);
+
+  const closeMenu = () => {
+    nav.classList.remove("is-open");
+    button.setAttribute("aria-expanded", "false");
+    button.setAttribute("aria-label", "Open navigation menu");
+  };
+  button.addEventListener("click", () => {
+    const isOpen = button.getAttribute("aria-expanded") === "true";
+    button.setAttribute("aria-expanded", String(!isOpen));
+    button.setAttribute("aria-label", isOpen ? "Open navigation menu" : "Close navigation menu");
+    nav.classList.toggle("is-open", !isOpen);
+  });
+  nav.addEventListener("click", event => {
+    if (event.target.closest("a")) closeMenu();
+  });
+  document.addEventListener("click", event => {
+    if (!header.contains(event.target)) closeMenu();
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      closeMenu();
+      button.focus();
+    }
+  });
+}
+
+function setupPasswordVisibility() {
+  document.querySelectorAll('input[type="password"]').forEach(input => {
+    if (input.closest(".password-field")) return;
+    const wrapper = document.createElement("div");
+    wrapper.className = "password-field";
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.append(input);
+
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "password-toggle";
+    toggle.textContent = "Show";
+    toggle.setAttribute("aria-label", "Show password");
+    toggle.setAttribute("aria-pressed", "false");
+    toggle.addEventListener("click", () => {
+      const reveal = input.type === "password";
+      input.type = reveal ? "text" : "password";
+      toggle.textContent = reveal ? "Hide" : "Show";
+      toggle.setAttribute("aria-label", reveal ? "Hide password" : "Show password");
+      toggle.setAttribute("aria-pressed", String(reveal));
+      input.focus();
+    });
+    wrapper.append(toggle);
+  });
+}
 
 function toast(message) {
   const el = getElement("toast");
@@ -92,8 +167,7 @@ async function handleAuthState(session) {
     if (currentUser) {
       await loadStudentDashboard();
     } else {
-      const next = encodeURIComponent("dashboard.html");
-      window.location.replace(pageUrl(`login.html?next=${next}`));
+      window.location.replace(pageUrl(`login.html?next=${encodeURIComponent("dashboard.html")}`));
     }
   }
 }
@@ -118,12 +192,9 @@ function setupSupabase() {
   supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
-
   supabaseClient.auth.onAuthStateChange((_event, session) => {
-    // Defer work out of the auth callback to avoid blocking Supabase's auth lock.
     setTimeout(() => handleAuthState(session), 0);
   });
-
   restoreSession();
 }
 
@@ -134,7 +205,6 @@ async function restoreSession() {
     return;
   }
   await handleAuthState(data.session);
-
   if (currentUser && ["login.html", "register.html"].includes(currentPage())) {
     window.location.replace(pageUrl("dashboard.html"));
   }
@@ -144,7 +214,6 @@ async function restoreSession() {
 getElement("registerForm")?.addEventListener("submit", async event => {
   event.preventDefault();
   if (!supabaseClient) return toast("Supabase is not connected. Add the project URL and anon/publishable key in app.js.");
-
   const formElement = event.currentTarget;
   const form = new FormData(formElement);
   const full_name = String(form.get("full_name") || "").trim();
@@ -159,10 +228,7 @@ getElement("registerForm")?.addEventListener("submit", async event => {
     const { data, error } = await supabaseClient.auth.signUp({
       email,
       password,
-      options: {
-        data: { full_name, phone },
-        emailRedirectTo: pageUrl("dashboard.html")
-      }
+      options: { data: { full_name, phone }, emailRedirectTo: pageUrl("dashboard.html") }
     });
     if (error) throw error;
     formElement.reset();
@@ -186,7 +252,6 @@ getElement("registerForm")?.addEventListener("submit", async event => {
 getElement("loginForm")?.addEventListener("submit", async event => {
   event.preventDefault();
   if (!supabaseClient) return toast("Supabase is not connected. Add the project URL and anon/publishable key in app.js.");
-
   const formElement = event.currentTarget;
   const form = new FormData(formElement);
   const button = formElement.querySelector("button[type=submit]");
@@ -249,8 +314,7 @@ getElement("applicationForm")?.addEventListener("submit", async event => {
   event.preventDefault();
   if (!supabaseClient) return toast("Supabase is not connected. Add the project URL and anon/publishable key in app.js.");
   if (!currentUser) {
-    const next = encodeURIComponent("apply.html");
-    window.location.assign(pageUrl(`login.html?next=${next}`));
+    window.location.assign(pageUrl(`login.html?next=${encodeURIComponent("apply.html")}`));
     return;
   }
 
@@ -268,28 +332,16 @@ getElement("applicationForm")?.addEventListener("submit", async event => {
   for (const field of ["collateral_confirmation", "information_confirmation", "terms_confirmation"]) {
     if (value(field) !== "yes") return toast("Please confirm all required statements before submitting.");
   }
-
   const collateralValue = Number(value("collateral_estimated_value"));
   if (!Number.isFinite(collateralValue) || collateralValue <= 0) return toast("Enter a valid estimated collateral value.");
+
   const applicationData = {
-    full_name: value("full_name"),
-    date_of_birth: value("date_of_birth"),
-    phone: value("phone"),
-    email: value("email"),
-    residential_address: value("residential_address"),
-    institution: value("institution"),
-    programme: value("programme"),
-    study_year: value("study_year"),
-    student_id: value("student_id"),
-    amount_requested: amount,
-    loan_term_weeks: term,
-    purpose: value("purpose"),
-    collateral_type: value("collateral_type"),
-    collateral_estimated_value: collateralValue,
-    collateral_description: value("collateral_description"),
-    collateral_confirmation: true,
-    emergency_contact_name: value("emergency_contact_name"),
-    emergency_contact_phone: value("emergency_contact_phone"),
+    full_name: value("full_name"), date_of_birth: value("date_of_birth"), phone: value("phone"), email: value("email"),
+    residential_address: value("residential_address"), institution: value("institution"), programme: value("programme"),
+    study_year: value("study_year"), student_id: value("student_id"), amount_requested: amount, loan_term_weeks: term,
+    purpose: value("purpose"), collateral_type: value("collateral_type"), collateral_estimated_value: collateralValue,
+    collateral_description: value("collateral_description"), collateral_confirmation: true,
+    emergency_contact_name: value("emergency_contact_name"), emergency_contact_phone: value("emergency_contact_phone"),
     emergency_contact_relationship: value("emergency_contact_relationship")
   };
 
@@ -320,9 +372,7 @@ getElement("applicationForm")?.addEventListener("submit", async event => {
 async function loadStudentDashboard() {
   const dashboard = getElement("studentDashboard");
   const list = getElement("applicationList");
-  if (!dashboard || !list) return;
-  if (!currentUser || !supabaseClient) return;
-
+  if (!dashboard || !list || !currentUser || !supabaseClient) return;
   dashboard.textContent = "Loading your applications...";
   list.replaceChildren();
   const { data, error } = await supabaseClient
@@ -356,4 +406,7 @@ async function loadStudentDashboard() {
 
 const yearElement = getElement("year");
 if (yearElement) yearElement.textContent = new Date().getFullYear();
+loadInterfaceStyles();
+setupDropdownNavigation();
+setupPasswordVisibility();
 setupSupabase();

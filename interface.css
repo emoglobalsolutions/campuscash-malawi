@@ -1,0 +1,149 @@
+/* Dropdown navigation and password controls, loaded by app.js on every page. */
+.topbar {
+  position: sticky;
+}
+
+.menu-toggle {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(16, 61, 50, 0.12);
+  border-radius: 14px;
+  color: var(--green-800, #103d32);
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(16, 61, 50, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.menu-toggle:hover,
+.menu-toggle[aria-expanded="true"] {
+  background: var(--green-50, #f2faf7);
+  box-shadow: 0 10px 24px rgba(16, 61, 50, 0.12);
+  transform: translateY(-1px);
+}
+
+.menu-toggle:focus-visible,
+.password-toggle:focus-visible {
+  outline: 3px solid rgba(214, 170, 69, 0.75);
+  outline-offset: 3px;
+}
+
+.menu-toggle-dots {
+  display: flex;
+  gap: 3px;
+  flex-direction: column;
+}
+
+.menu-toggle-dots i {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.topbar > .nav-links {
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 6%;
+  z-index: 60;
+  width: min(320px, calc(100vw - 32px));
+  max-height: min(75vh, 480px);
+  overflow-y: auto;
+  padding: 10px;
+  gap: 4px;
+  flex-direction: column;
+  align-items: stretch;
+  border: 1px solid rgba(16, 61, 50, 0.1);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 22px 55px rgba(13, 45, 40, 0.18);
+  backdrop-filter: blur(16px);
+}
+
+.topbar > .nav-links.is-open {
+  display: flex;
+}
+
+.topbar > .nav-links a {
+  display: flex;
+  align-items: center;
+  min-height: 46px;
+  padding: 10px 14px;
+  border-radius: 11px;
+  color: var(--slate-700, #425855);
+  font-size: 14px;
+  font-weight: 700;
+  transition: color 0.18s ease, background 0.18s ease;
+}
+
+.topbar > .nav-links a::after {
+  display: none;
+}
+
+.topbar > .nav-links a:hover,
+.topbar > .nav-links a:focus-visible {
+  color: var(--green-800, #103d32);
+  background: var(--green-50, #f2faf7);
+  outline: none;
+}
+
+.password-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-field input {
+  width: 100%;
+  padding-right: 68px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 8px;
+  min-width: 48px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--green-700, #17634f);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.password-toggle:hover {
+  background: var(--green-100, #e9f5f1);
+}
+
+@media (max-width: 650px) {
+  .topbar {
+    gap: 10px;
+  }
+
+  .menu-toggle {
+    margin-left: auto;
+  }
+
+  .topbar > .nav-links {
+    right: 5%;
+  }
+
+  .topbar > .nav-links a {
+    min-height: 48px;
+    font-size: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-toggle,
+  .topbar > .nav-links a {
+    transition: none;
+  }
+}
