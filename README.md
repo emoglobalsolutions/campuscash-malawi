@@ -1,163 +1,43 @@
-create or replace function public.submit_loan_decision(
-    p_application_id uuid,
-    p_decision text,
-    p_approved_amount numeric,
-    p_notes text default null
-)
-returns jsonb
-language plpgsql
-security definer
-set search_path = ''
-as $$
-declare
-    v_user_id uuid;
-    v_application public.loan_applications%rowtype;
-    v_interest_rate numeric(5,4);
-    v_interest numeric(14,2);
-    v_total numeric(14,2);
-    v_due_date date;
-begin
-    v_user_id := auth.uid();
+# CampusCash Malawi
 
-    if v_user_id is null then
-        raise exception 'Please sign in before updating an application.';
-    end if;
+A mobile-friendly student registration and loan application website with separate Home, About, Apply, Dashboard, Login, and Register pages.
 
-    if not public.is_campus_admin() then
-        raise exception 'Admin access required to review applications.';
-    end if;
+## Pages and files
+- `index.html` — Home
+- `about.html` — About CampusCash
+- `apply.html` — loan application
+- `dashboard.html` — signed-in student's applications
+- `login.html` — student login
+- `register.html` — student registration
+- `style.css` — shared responsive design
+- `app.js` — Supabase Auth, page redirects, loan application submission and dashboard loading
+- `supabase/schema.sql` — database schema, RPC submission function, and Row Level Security policies
 
-    if p_decision not in ('Approved', 'Declined') then
-        raise exception 'Decision must be Approved or Declined.';
-    end if;
+All page navigation uses the repository's relative `.html` paths, which work both locally and under a GitHub Pages repository subpath.
 
-    select * into v_application
-    from public.loan_applications
-    where id = p_application_id
-    for update;
+## Publish with GitHub Pages
+1. Upload all files and the `supabase` folder to the repository root.
+2. Open repository **Settings → Pages**.
+3. Under Build and deployment, choose **Deploy from a branch**.
+4. Select `main` and `/ (root)`, then Save.
+5. Wait for GitHub Pages to publish the site.
 
-    if v_application.id is null then
-        raise exception 'Application was not found.';
-    end if;
+## Connect Supabase Auth and the database
+1. Create or open your Supabase project.
+2. In **Project Settings → API** (or the Connect panel), copy the **Project URL** and **anon/publishable key**.
+3. In `app.js`, replace `YOUR_SUPABASE_PROJECT_URL` and `YOUR_SUPABASE_ANON_OR_PUBLISHABLE_KEY` with those two public values.
+4. Never put a `service_role` key in browser JavaScript.
+5. Run the complete `supabase/schema.sql` file in the Supabase **SQL Editor**.
+6. In Supabase **Authentication → URL Configuration**, set the Site URL to your published GitHub Pages site and add the published site URL (including the repository path) to the Redirect URLs.
+7. Configure email confirmation to suit your testing and production needs. When confirmation is enabled, registration asks the student to confirm by email; the confirmation link returns them to `dashboard.html`.
+8. Test registration, email confirmation, login, dashboard loading, logout, and loan application submission using a test account and dummy data.
 
-    if p_decision = 'Approved' then
-        if p_approved_amount is null or p_approved_amount < 20000 or p_approved_amount > 2000000 then
-            raise exception 'Approved amount must be between MWK 20,000 and MWK 2,000,000.';
-        end if;
+Login routes to the dashboard by default. If a student tries to apply before signing in, login redirects them back to the application page after successful authentication. Dashboard records are filtered by the signed-in user ID.
 
-        v_interest_rate := coalesce(v_application.interest_rate, 0.20);
-        v_interest := round(p_approved_amount * v_interest_rate, 2);
-        v_total := p_approved_amount + v_interest;
-        v_due_date := coalesce(v_application.estimated_due_date, current_date + ((coalesce(v_application.loan_term_weeks, 1)) * 7));
-
-        update public.loan_applications
-        set
-            status = 'Approved',
-            approved_amount = p_approved_amount,
-            approved_at = now(),
-            total_repayment = v_total,
-            interest_rate = v_interest_rate,
-            interest_amount = v_interest,
-            estimated_due_date = v_due_date,
-            updated_at = now()
-        where id = p_application_id;
-    else
-        update public.loan_applications
-        set
-            status = 'Declined',
-            approved_amount = null,
-            approved_at = null,
-            updated_at = now()
-        where id = p_application_id;
-    end if;
-
-    insert into public.loan_approvals (
-        application_id,
-        approved_by,
-        approved_amount,
-        interest_rate,
-        interest_amount,
-        total_repayment,
-        due_date,
-        decision,
-        decision_notes,
-        created_at
-    )
-    values (
-        p_application_id,
-        v_user_id,
-        coalesce(p_approved_amount, 0),
-        coalesce(v_application.interest_rate, 0.20),
-        round(coalesce(p_approved_amount, 0) * coalesce(v_application.interest_rate, 0.20), 2),
-        coalesce(p_approved_amount, 0) + round(coalesce(p_approved_amount, 0) * coalesce(v_application.interest_rate, 0.20), 2),
-        coalesce(v_application.estimated_due_date, current_date + ((coalesce(v_application.loan_term_weeks, 1)) * 7)),
-        p_decision,
-        p_notes,
-        now()
-    )
-    on conflict (application_id)
-    do update set
-        approved_by = excluded.approved_by,
-        approved_amount = excluded.approved_amount,
-        interest_rate = excluded.interest_rate,
-        interest_amount = excluded.interest_amount,
-        total_repayment = excluded.total_repayment,
-        due_date = excluded.due_date,
-        decision = excluded.decision,
-        decision_notes = excluded.decision_notes,
-        created_at = now();
-
-    insert into public.application_status_history (
-        application_id,
-        old_status,
-        new_status,
-        changed_by,
-        notes,
-        created_at
-    )
-    values (
-        p_application_id,
-        v_application.status,
-        p_decision,
-        v_user_id,
-        p_notes,
-        now()
-    );
-
-    return jsonb_build_object(
-        'application_id', p_application_id,
-        'status', p_decision,
-        'approved_amount', p_approved_amount,
-        'notes', p_notes
-    );
-end;
-$$;
-
-revoke all on function public.submit_loan_decision(uuid, text, numeric, text) from public;
-grant execute on function public.submit_loan_decision(uuid, text, numeric, text) to authenticated;
-
--- Ensure admin accounts have a clear write path in RLS.
-create policy if not exists "Admins manage all applications"
-on public.loan_applications
-for all
-to authenticated
-using (public.is_campus_admin())
-with check (public.is_campus_admin());
-
-create policy if not exists "Admins manage all collateral"
-on public.collateral_records
-for all
-to authenticated
-using (public.is_campus_admin())
-with check (public.is_campus_admin());
-
-create policy if not exists "Admins manage all approval decisions"
-on public.loan_approvals
-for all
-to authenticated
-using (public.is_campus_admin())
-with check (public.is_campus_admin());
-
--- Admin setup guidance:
--- 1. Add an authorised admin user in public.admin_accounts (user_id = auth.users.id, is_active = true).
--- 2. Keep this table restricted to trusted admins and never expose a service_role key in browser code.
+## Important security and launch notes
+- Supabase Auth handles passwords; this website does not store passwords in its database.
+- The browser uses only the public anon/publishable key. Row Level Security must remain enabled.
+- Do not expose a `service_role` key or build admin access into browser-only code.
+- This starter does not approve loans, disburse money, verify collateral, or guarantee a repayment outcome.
+- Before accepting real applications, publish verified eligibility rules, fees, interest rates, repayment terms, privacy policy, complaints process, and official contact details.
+- Test with dummy information before inviting students to use the system.
