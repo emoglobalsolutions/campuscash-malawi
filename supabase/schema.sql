@@ -1,650 +1,568 @@
-
--- =========================================================
--- CAMPUSCASH MALAWI
--- Database schema and safe upgrade migration
--- =========================================================
-
-create extension if not exists pgcrypto;
-
--- ---------------------------------------------------------
--- 1. STUDENT PROFILES
--- ---------------------------------------------------------
-
-create table if not exists public.profiles (
-    id uuid primary key references auth.users(id) on delete cascade,
-    full_name text,
-    phone text,
-    created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now()
-);
-
-alter table public.profiles enable row level security;
-
--- ---------------------------------------------------------
--- 2. ADMIN ACCOUNTS
--- Admins must be added by a trusted project administrator.
--- Students cannot grant themselves admin access.
--- ---------------------------------------------------------
-
-create table if not exists public.admin_accounts (
-    user_id uuid primary key references auth.users(id) on delete cascade,
-    is_active boolean not null default true,
-    created_at timestamptz not null default now()
-);
-
-alter table public.admin_accounts enable row level security;
-
-create or replace function public.is_campus_admin()
-returns boolean
-language sql
-stable
-security definer
-set search_path = ''
-as $$
-    select exists (
-        select 1
-        from public.admin_accounts
-        where user_id = (select auth.uid())
-          and is_active = true
-    );
-$$;
-
-revoke all on function public.is_campus_admin() from public;
-grant execute on function public.is_campus_admin() to authenticated;
-
--- ---------------------------------------------------------
--- 3. LOAN APPLICATIONS
--- Preserve the existing table and its records.
--- ---------------------------------------------------------
-
-create table if not exists public.loan_applications (
-    id uuid primary key default gen_random_uuid(),
-    user_id uuid not null references auth.users(id) on delete cascade,
-    full_name text not null,
-    phone text not null,
-    institution text not null,
-    programme text not null,
-    study_year text not null,
-    amount_requested numeric(14,2) not null check (amount_requested > 0),
-    purpose text not null,
-    status text not null default 'Submitted',
-    admin_notes text,
-    created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now()
-);
-
-alter table public.loan_applications
-    add column if not exists date_of_birth date,
-    add column if not exists email text,
-    add column if not exists residential_address text,
-    add column if not exists student_id text,
-    add column if not exists loan_term_weeks integer,
-    add column if not exists interest_rate numeric(5,4),
-    add column if not exists interest_amount numeric(14,2),
-    add column if not exists total_repayment numeric(14,2),
-    add column if not exists estimated_due_date date,
-    add column if not exists approved_amount numeric(14,2),
-    add column if not exists approved_at timestamptz,
-    add column if not exists disbursed_at timestamptz,
-    add column if not exists emergency_contact_name text,
-    add column if not exists emergency_contact_phone text,
-    add column if not exists emergency_contact_relationship text;
-
--- Replace the old status constraint with the new status list.
-alter table public.loan_applications
-    drop constraint if exists loan_applications_status_check;
-
-update public.loan_applications
-set status = 'Submitted'
-where status is null
-   or status = 'More Information Required';
-
-alter table public.loan_applications
-    alter column status set default 'Submitted';
-
-alter table public.loan_applications
-    add constraint campuscash_application_status_check
-    check (
-        status in (
-            'Submitted',
-            'Under Review',
-            'Collateral Pending',
-            'Collateral Verified',
-            'Approved',
-            'Declined',
-            'Disbursed',
-            'Completed'
-        )
-    );
-
-alter table public.loan_applications
-    add constraint campuscash_amount_check
-    check (amount_requested between 20000 and 2000000);
-
-alter table public.loan_applications
-    add constraint campuscash_term_check
-    check (
-        loan_term_weeks is null
-        or loan_term_weeks between 1 and 4
-    );
-
-alter table public.loan_applications
-    add constraint campuscash_rate_check
-    check (
-        interest_rate is null
-        or interest_rate in (0.20, 0.30, 0.40, 0.50)
-    );
-
-create index if not exists idx_loan_applications_user
-    on public.loan_applications(user_id);
-
-create index if not exists idx_loan_applications_status
-    on public.loan_applications(status);
-
-create index if not exists idx_loan_applications_created
-    on public.loan_applications(created_at desc);
-
--- ---------------------------------------------------------
--- 4. COLLATERAL RECORDS
--- Physical verification must be done by authorised staff.
--- ---------------------------------------------------------
-
-create table if not exists public.collateral_records (
-    id uuid primary key default gen_random_uuid(),
-    application_id uuid not null unique
-        references public.loan_applications(id) on delete cascade,
-    collateral_type text not null,
-    description text not null,
-    estimated_value numeric(14,2) not null
-        check (estimated_value > 0),
-    available_for_verification boolean not null default false,
-    verification_status text not null default 'Pending'
-        check (
-            verification_status in (
-                'Pending',
-                'Appointment Required',
-                'Verified',
-                'Rejected'
-            )
-        ),
-    verified_by uuid references auth.users(id),
-    verified_at timestamptz,
-    verification_notes text,
-    created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now()
-);
-
-create index if not exists idx_collateral_application
-    on public.collateral_records(application_id);
-
--- ---------------------------------------------------------
--- 5. LOAN APPROVALS
--- ---------------------------------------------------------
-
-create table if not exists public.loan_approvals (
-    id uuid primary key default gen_random_uuid(),
-    application_id uuid not null unique
-        references public.loan_applications(id) on delete cascade,
-    approved_by uuid references auth.users(id),
-    approved_amount numeric(14,2) not null
-        check (approved_amount between 20000 and 2000000),
-    interest_rate numeric(5,4) not null
-        check (interest_rate in (0.20, 0.30, 0.40, 0.50)),
-    interest_amount numeric(14,2) not null,
-    total_repayment numeric(14,2) not null,
-    due_date date not null,
-    decision text not null
-        check (decision in ('Approved', 'Declined')),
-    decision_notes text,
-    created_at timestamptz not null default now()
-);
-
--- ---------------------------------------------------------
--- 6. REPAYMENT SCHEDULES
--- ---------------------------------------------------------
-
-create table if not exists public.repayment_schedules (
-    id uuid primary key default gen_random_uuid(),
-    application_id uuid not null
-        references public.loan_applications(id) on delete cascade,
-    due_date date not null,
-    amount_due numeric(14,2) not null check (amount_due > 0),
-    amount_paid numeric(14,2) not null default 0
-        check (amount_paid >= 0),
-    status text not null default 'Pending'
-        check (
-            status in ('Pending', 'Partially Paid', 'Paid', 'Overdue')
-        ),
-    created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now()
-);
-
-create index if not exists idx_repayment_application
-    on public.repayment_schedules(application_id);
-
-create index if not exists idx_repayment_due_date
-    on public.repayment_schedules(due_date);
-
--- ---------------------------------------------------------
--- 7. REPAYMENT TRANSACTIONS
--- ---------------------------------------------------------
-
-create table if not exists public.repayment_transactions (
-    id uuid primary key default gen_random_uuid(),
-    schedule_id uuid not null
-        references public.repayment_schedules(id) on delete restrict,
-    application_id uuid not null
-        references public.loan_applications(id) on delete restrict,
-    amount_paid numeric(14,2) not null check (amount_paid > 0),
-    payment_method text,
-    transaction_reference text,
-    recorded_by uuid references auth.users(id),
-    payment_date timestamptz not null default now(),
-    notes text,
-    created_at timestamptz not null default now()
-);
-
-create index if not exists idx_repayment_transactions_application
-    on public.repayment_transactions(application_id);
-
--- ---------------------------------------------------------
--- 8. APPLICATION STATUS HISTORY
--- ---------------------------------------------------------
-
-create table if not exists public.application_status_history (
-    id uuid primary key default gen_random_uuid(),
-    application_id uuid not null
-        references public.loan_applications(id) on delete cascade,
-    old_status text,
-    new_status text not null,
-    changed_by uuid references auth.users(id),
-    notes text,
-    created_at timestamptz not null default now()
-);
-
-create index if not exists idx_status_history_application
-    on public.application_status_history(application_id);
-
--- ---------------------------------------------------------
--- 9. STATUS HISTORY AUTOMATION
--- ---------------------------------------------------------
-
-create or replace function public.record_application_status_change()
-returns trigger
-language plpgsql
-security definer
-set search_path = ''
-as $$
-begin
-    if tg_op = 'INSERT' then
-        insert into public.application_status_history (
-            application_id,
-            old_status,
-            new_status,
-            changed_by
-        )
-        values (
-            new.id,
-            null,
-            new.status,
-            auth.uid()
-        );
-    elsif old.status is distinct from new.status then
-        insert into public.application_status_history (
-            application_id,
-            old_status,
-            new_status,
-            changed_by
-        )
-        values (
-            new.id,
-            old.status,
-            new.status,
-            auth.uid()
-        );
-    end if;
-
-    new.updated_at = now();
-    return new;
-end;
-$$;
-
-drop trigger if exists campuscash_status_history_trigger
-    on public.loan_applications;
-
-create trigger campuscash_status_history_trigger
-after insert or update of status
-on public.loan_applications
-for each row
-execute function public.record_application_status_change();
-
--- ---------------------------------------------------------
--- 10. SECURE APPLICATION SUBMISSION FUNCTION
--- Calculates interest on the database, not from browser input.
--- ---------------------------------------------------------
-
-create or replace function public.submit_loan_application(
-    p_application jsonb
-)
-returns uuid
-language plpgsql
-security definer
-set search_path = ''
-as $$
-declare
-    v_user_id uuid;
-    v_application_id uuid;
-    v_amount numeric(14,2);
-    v_term integer;
-    v_rate numeric(5,4);
-    v_interest numeric(14,2);
-    v_total numeric(14,2);
-    v_collateral jsonb;
-begin
-    v_user_id := auth.uid();
-
-    if v_user_id is null then
-        raise exception 'Please sign in before submitting an application.';
-    end if;
-
-    v_amount := (p_application->>'amount_requested')::numeric;
-    v_term := (p_application->>'loan_term_weeks')::integer;
-
-    if v_amount < 20000 or v_amount > 2000000 then
-        raise exception 'Loan amount must be between MWK 20,000 and MWK 2,000,000.';
-    end if;
-
-    if v_term not in (1, 2, 3, 4) then
-        raise exception 'Loan term must be between 1 and 4 weeks.';
-    end if;
-
-    v_rate := case v_term
-        when 1 then 0.20
-        when 2 then 0.30
-        when 3 then 0.40
-        when 4 then 0.50
-    end;
-
-    v_interest := round(v_amount * v_rate, 2);
-    v_total := v_amount + v_interest;
-
-    v_collateral := coalesce(
-        p_application->'collateral',
-        '{}'::jsonb
-    );
-
-    insert into public.loan_applications (
-        user_id,
-        full_name,
-        date_of_birth,
-        phone,
-        email,
-        residential_address,
-        institution,
-        programme,
-        study_year,
-        student_id,
-        amount_requested,
-        loan_term_weeks,
-        interest_rate,
-        interest_amount,
-        total_repayment,
-        estimated_due_date,
-        purpose,
-        emergency_contact_name,
-        emergency_contact_phone,
-        emergency_contact_relationship,
-        status
-    )
-    values (
-        v_user_id,
-        p_application->>'full_name',
-        nullif(p_application->>'date_of_birth', '')::date,
-        p_application->>'phone',
-        p_application->>'email',
-        p_application->>'residential_address',
-        p_application->>'institution',
-        p_application->>'programme',
-        p_application->>'study_year',
-        p_application->>'student_id',
-        v_amount,
-        v_term,
-        v_rate,
-        v_interest,
-        v_total,
-        current_date + (v_term * 7),
-        p_application->>'purpose',
-        p_application->>'emergency_contact_name',
-        p_application->>'emergency_contact_phone',
-        p_application->>'emergency_contact_relationship',
-        'Submitted'
-    )
-    returning id into v_application_id;
-
-    insert into public.collateral_records (
-        application_id,
-        collateral_type,
-        description,
-        estimated_value,
-        available_for_verification,
-        verification_status
-    )
-    values (
-        v_application_id,
-        coalesce(
-            v_collateral->>'type',
-            p_application->>'collateral_type'
-        ),
-        coalesce(
-            v_collateral->>'description',
-            p_application->>'collateral_description'
-        ),
-        coalesce(
-            v_collateral->>'estimated_value',
-            p_application->>'collateral_estimated_value'
-        )::numeric,
-        coalesce(
-            (v_collateral->>'available_for_verification')::boolean,
-            (p_application->>'collateral_confirmation')::boolean,
-            false
-        ),
-        'Pending'
-    );
-
-    return v_application_id;
-end;
-$$;
-
-revoke all on function public.submit_loan_application(jsonb) from public;
-grant execute on function public.submit_loan_application(jsonb) to authenticated;
-
--- ---------------------------------------------------------
--- 11. ROW LEVEL SECURITY
--- ---------------------------------------------------------
-
-alter table public.loan_applications enable row level security;
-alter table public.collateral_records enable row level security;
-alter table public.loan_approvals enable row level security;
-alter table public.repayment_schedules enable row level security;
-alter table public.repayment_transactions enable row level security;
-alter table public.application_status_history enable row level security;
-
--- Profiles: users can view and update only their own profile.
-drop policy if exists "Students view own profile" on public.profiles;
-create policy "Students view own profile"
-on public.profiles for select
-to authenticated
-using (id = (select auth.uid()));
-
-drop policy if exists "Students update own profile" on public.profiles;
-create policy "Students update own profile"
-on public.profiles for update
-to authenticated
-using (id = (select auth.uid()))
-with check (id = (select auth.uid()));
-
--- Admin accounts: an admin can view their own admin record.
-drop policy if exists "Admins view own admin record" on public.admin_accounts;
-create policy "Admins view own admin record"
-on public.admin_accounts for select
-to authenticated
-using (user_id = (select auth.uid()));
-
--- Applications: students see their own; admins can manage all.
-drop policy if exists "Students view own applications" on public.loan_applications;
-create policy "Students view own applications"
-on public.loan_applications for select
-to authenticated
-using (user_id = (select auth.uid()));
-
-drop policy if exists "Admins view all applications" on public.loan_applications;
-create policy "Admins view all applications"
-on public.loan_applications for select
-to authenticated
-using (public.is_campus_admin());
-
-drop policy if exists "Admins update applications" on public.loan_applications;
-create policy "Admins update applications"
-on public.loan_applications for update
-to authenticated
-using (public.is_campus_admin())
-with check (public.is_campus_admin());
-
--- Collateral: students can see their own records; admins manage verification.
-drop policy if exists "Students view own collateral" on public.collateral_records;
-create policy "Students view own collateral"
-on public.collateral_records for select
-to authenticated
-using (
-    exists (
-        select 1
-        from public.loan_applications a
-        where a.id = collateral_records.application_id
-          and a.user_id = (select auth.uid())
-    )
-);
-
-drop policy if exists "Admins view collateral" on public.collateral_records;
-create policy "Admins view collateral"
-on public.collateral_records for select
-to authenticated
-using (public.is_campus_admin());
-
-drop policy if exists "Admins update collateral" on public.collateral_records;
-create policy "Admins update collateral"
-on public.collateral_records for update
-to authenticated
-using (public.is_campus_admin())
-with check (public.is_campus_admin());
-
--- Loan approvals: students can view their own; admins manage.
-drop policy if exists "Students view own approvals" on public.loan_approvals;
-create policy "Students view own approvals"
-on public.loan_approvals for select
-to authenticated
-using (
-    exists (
-        select 1
-        from public.loan_applications a
-        where a.id = loan_approvals.application_id
-          and a.user_id = (select auth.uid())
-    )
-);
-
-drop policy if exists "Admins manage approvals" on public.loan_approvals;
-create policy "Admins manage approvals"
-on public.loan_approvals for all
-to authenticated
-using (public.is_campus_admin())
-with check (public.is_campus_admin());
-
--- Repayment schedules: students view their own; admins manage.
-drop policy if exists "Students view own repayment schedules" on public.repayment_schedules;
-create policy "Students view own repayment schedules"
-on public.repayment_schedules for select
-to authenticated
-using (
-    exists (
-        select 1
-        from public.loan_applications a
-        where a.id = repayment_schedules.application_id
-          and a.user_id = (select auth.uid())
-    )
-);
-
-drop policy if exists "Admins manage repayment schedules" on public.repayment_schedules;
-create policy "Admins manage repayment schedules"
-on public.repayment_schedules for all
-to authenticated
-using (public.is_campus_admin())
-with check (public.is_campus_admin());
-
--- Repayment transactions: students view their own; admins manage.
-drop policy if exists "Students view own repayment transactions" on public.repayment_transactions;
-create policy "Students view own repayment transactions"
-on public.repayment_transactions for select
-to authenticated
-using (
-    exists (
-        select 1
-        from public.loan_applications a
-        where a.id = repayment_transactions.application_id
-          and a.user_id = (select auth.uid())
-    )
-);
-
-drop policy if exists "Admins manage repayment transactions" on public.repayment_transactions;
-create policy "Admins manage repayment transactions"
-on public.repayment_transactions for all
-to authenticated
-using (public.is_campus_admin())
-with check (public.is_campus_admin());
-
--- Status history: students view their own; admins can view all.
-drop policy if exists "Students view own status history" on public.application_status_history;
-create policy "Students view own status history"
-on public.application_status_history for select
-to authenticated
-using (
-    exists (
-        select 1
-        from public.loan_applications a
-        where a.id = application_status_history.application_id
-          and a.user_id = (select auth.uid())
-    )
-);
-
-drop policy if exists "Admins view status history" on public.application_status_history;
-create policy "Admins view status history"
-on public.application_status_history for select
-to authenticated
-using (public.is_campus_admin());
-
--- ---------------------------------------------------------
--- 12. RESTRICT DIRECT STUDENT WRITES
--- Students submit through the secure database function.
--- ---------------------------------------------------------
-
-revoke insert, delete on public.loan_applications from anon, authenticated;
-revoke insert, update, delete on public.collateral_records from anon, authenticated;
-revoke insert, update, delete on public.application_status_history from anon, authenticated;
-revoke insert, update, delete on public.profiles from anon;
-revoke insert, update, delete on public.admin_accounts from anon, authenticated;
-revoke insert, update, delete on public.loan_approvals from anon, authenticated;
-revoke insert, update, delete on public.repayment_schedules from anon, authenticated;
-revoke insert, update, delete on public.repayment_transactions from anon, authenticated;
-
-grant select on public.profiles to authenticated;
-grant update (full_name, phone, updated_at) on public.profiles to authenticated;
-
-grant select on public.admin_accounts to authenticated;
-grant select, update on public.loan_applications to authenticated;
-grant select, update on public.collateral_records to authenticated;
-grant select, insert, update on public.loan_approvals to authenticated;
-grant select, insert, update on public.repayment_schedules to authenticated;
-grant select, insert on public.repayment_transactions to authenticated;
-grant select on public.application_status_history to authenticated;
-
--- ---------------------------------------------------------
--- END OF CAMPUSCASH MALAWI DATABASE MIGRATION
--- ---------------------------------------------------------
+/*
+ * CAMPUSCASH MALAWI
+ * Supabase Auth, student loan application, dashboard, navigation and form helpers.
+ * Configure only the public Supabase URL and anon/publishable key below.
+ * Never place a service_role key in browser code.
+ */
+const SUPABASE_URL = "https://ebrkvcoittwhhmyimcnn.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_qP6zmrNWicI8GkhT5hmelA_dj9DjCsB";
+
+let supabaseClient = null;
+let currentUser = null;
+let authReady = false;
+
+const LOAN_RATES = { 1: 0.20, 2: 0.30, 3: 0.40, 4: 0.50 };
+const getElement = id => document.getElementById(id);
+const money = value => "MWK " + Number(value || 0).toLocaleString("en-US", { maximumFractionDigits: 2 });
+
+function loadInterfaceStyles() {
+  if (document.querySelector('link[data-campuscash-interface]')) return;
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = new URL("interface.css", document.baseURI).toString();
+  link.dataset.campuscashInterface = "true";
+  document.head.append(link);
+}
+
+function setupDropdownNavigation() {
+  const header = document.querySelector(".topbar");
+  const nav = header?.querySelector(".nav-links");
+  if (!header || !nav || header.querySelector(".menu-toggle")) return;
+
+  const button = document.createElement("button");
+  const navId = nav.id || "campuscash-navigation";
+  nav.id = navId;
+  button.type = "button";
+  button.className = "menu-toggle";
+  button.setAttribute("aria-label", "Open navigation menu");
+  button.setAttribute("aria-expanded", "false");
+  button.setAttribute("aria-controls", navId);
+  button.innerHTML = '<span class="menu-toggle-dots" aria-hidden="true"><i></i><i></i><i></i></span>';
+  header.insertBefore(button, nav);
+
+  const closeMenu = () => {
+    nav.classList.remove("is-open");
+    button.setAttribute("aria-expanded", "false");
+    button.setAttribute("aria-label", "Open navigation menu");
+  };
+  button.addEventListener("click", () => {
+    const isOpen = button.getAttribute("aria-expanded") === "true";
+    button.setAttribute("aria-expanded", String(!isOpen));
+    button.setAttribute("aria-label", isOpen ? "Open navigation menu" : "Close navigation menu");
+    nav.classList.toggle("is-open", !isOpen);
+  });
+  nav.addEventListener("click", event => {
+    if (event.target.closest("a")) closeMenu();
+  });
+  document.addEventListener("click", event => {
+    if (!header.contains(event.target)) closeMenu();
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      closeMenu();
+      button.focus();
+    }
+  });
+}
+
+function setupPasswordVisibility() {
+  document.querySelectorAll('input[type="password"]').forEach(input => {
+    if (input.closest(".password-field")) return;
+    const wrapper = document.createElement("div");
+    wrapper.className = "password-field";
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.append(input);
+
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "password-toggle";
+    toggle.textContent = "Show";
+    toggle.setAttribute("aria-label", "Show password");
+    toggle.setAttribute("aria-pressed", "false");
+    toggle.addEventListener("click", () => {
+      const reveal = input.type === "password";
+      input.type = reveal ? "text" : "password";
+      toggle.textContent = reveal ? "Hide" : "Show";
+      toggle.setAttribute("aria-label", reveal ? "Hide password" : "Show password");
+      toggle.setAttribute("aria-pressed", String(reveal));
+      input.focus();
+    });
+    wrapper.append(toggle);
+  });
+}
+
+function toast(message) {
+  const el = getElement("toast");
+  if (!el) {
+    window.alert(message);
+    return;
+  }
+  el.textContent = message;
+  el.classList.add("show");
+  clearTimeout(window.toastTimer);
+  window.toastTimer = setTimeout(() => el.classList.remove("show"), 3800);
+}
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>\"']/g, char => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+  })[char]);
+}
+
+function pageUrl(filename) {
+  return new URL(filename, window.location.href).toString();
+}
+
+function currentPage() {
+  return window.location.pathname.split("/").pop() || "index.html";
+}
+
+function getSafeNextPage(fallback = "dashboard.html") {
+  const requested = new URLSearchParams(window.location.search).get("next");
+  if (!requested) return fallback;
+  try {
+    const url = new URL(requested, window.location.href);
+    if (url.origin !== window.location.origin) return fallback;
+    const allowed = ["index.html", "about.html", "apply.html", "dashboard.html", "admin.html", "login.html", "register.html"];
+    return allowed.includes(url.pathname.split("/").pop()) ? url.toString() : pageUrl(fallback);
+  } catch {
+    return pageUrl(fallback);
+  }
+}
+
+function updateSessionUI() {
+  const box = getElement("sessionBox");
+  const logout = getElement("logoutBtn");
+  if (currentUser) {
+    box?.classList.remove("hidden");
+    logout?.classList.remove("hidden");
+    if (box) box.textContent = `Signed in as ${currentUser.email || "student"}.`;
+  } else {
+    box?.classList.add("hidden");
+    logout?.classList.add("hidden");
+  }
+}
+
+function fillApplicationContactDetails() {
+  if (!currentUser) return;
+  const form = getElement("applicationForm");
+  if (!form) return;
+  const profile = currentUser.user_metadata || {};
+  const name = form.elements.namedItem("full_name");
+  const phone = form.elements.namedItem("phone");
+  const email = form.elements.namedItem("email");
+  if (name && !name.value) name.value = profile.full_name || "";
+  if (phone && !phone.value) phone.value = profile.phone || "";
+  if (email && !email.value) email.value = currentUser.email || "";
+}
+
+async function checkIsAdmin() {
+  if (!supabaseClient || !currentUser) return false;
+  const { data, error } = await supabaseClient
+    .from("admin_accounts")
+    .select("user_id")
+    .eq("user_id", currentUser.id)
+    .maybeSingle();
+  if (error) {
+    console.error("Admin access check failed:", error);
+    return false;
+  }
+  return Boolean(data);
+}
+
+async function loadAdminDashboard() {
+  const dashboard = getElement("adminDashboard");
+  const list = getElement("adminApplicationList");
+  if (!dashboard || !list || !currentUser || !supabaseClient) return;
+  dashboard.textContent = "Loading applications...";
+  list.replaceChildren();
+
+  const { data, error } = await supabaseClient
+    .from("loan_applications")
+    .select("id, user_id, full_name, email, phone, status, institution, programme, amount_requested, approved_amount, total_repayment, loan_term_weeks, created_at, collateral_records(verification_status, description, estimated_value)")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    dashboard.textContent = "Admin dashboard could not be loaded. Check the Supabase RLS and policies.";
+    console.error("Admin dashboard query:", error);
+    return;
+  }
+
+  const applications = data || [];
+  if (!applications.length) {
+    dashboard.innerHTML = '<p class="muted">No applications have been submitted yet.</p>';
+    return;
+  }
+
+  dashboard.innerHTML = `<p><strong>Total applications:</strong> ${applications.length}</p>`;
+  list.innerHTML = applications.map(application => {
+    const collateral = Array.isArray(application.collateral_records) ? application.collateral_records[0] : application.collateral_records;
+    const verifyStatus = collateral?.verification_status || "Pending";
+    const approvedValue = application.approved_amount == null ? "Not approved" : money(application.approved_amount);
+    return `
+      <article class="application-item admin-application-item">
+        <div class="admin-application-header">
+          <h4>${escapeHTML(application.full_name || "Student application")}</h4>
+          <span class="status-pill">${escapeHTML(application.status || "Submitted")}</span>
+        </div>
+        <p><strong>Student:</strong> ${escapeHTML(application.email || "Unknown email")}</p>
+        <p><strong>Phone:</strong> ${escapeHTML(application.phone || "—")}</p>
+        <p><strong>Institution:</strong> ${escapeHTML(application.institution || "—")}</p>
+        <p><strong>Programme:</strong> ${escapeHTML(application.programme || "—")}</p>
+        <p><strong>Requested:</strong> ${money(application.amount_requested)}</p>
+        <p><strong>Approved amount:</strong> ${approvedValue}</p>
+        <p><strong>Repayment:</strong> ${money(application.total_repayment || 0)}</p>
+        <p><strong>Verification:</strong> ${escapeHTML(verifyStatus)}</p>
+        <p><strong>Submitted:</strong> ${application.created_at ? new Date(application.created_at).toLocaleDateString("en-GB") : "—"}</p>
+        <div class="admin-actions">
+          <button type="button" class="btn btn-primary admin-btn" data-action="approve" data-id="${application.id}">Approve</button>
+          <button type="button" class="btn btn-dark admin-btn" data-action="decline" data-id="${application.id}">Decline</button>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  list.querySelectorAll(".admin-btn").forEach(button => {
+    button.addEventListener("click", async event => {
+      const id = event.currentTarget.dataset.id;
+      const action = event.currentTarget.dataset.action;
+      const approvedAmount = action === "approve"
+        ? Number(window.prompt("Enter approved loan amount in MWK", "20000"))
+        : null;
+      if (action === "approve" && (!Number.isFinite(approvedAmount) || approvedAmount < 20000 || approvedAmount > 2000000)) {
+        toast("Approved amount must be between MWK 20,000 and MWK 2,000,000.");
+        return;
+      }
+      const { data, error } = await supabaseClient.rpc("submit_loan_decision", {
+        p_application_id: id,
+        p_decision: action === "approve" ? "Approved" : "Declined",
+        p_approved_amount: approvedAmount,
+        p_notes: action === "approve" ? "Application approved by admin." : "Application declined by admin."
+      });
+      if (error) {
+        toast(error.message || "Could not update the application.");
+        return;
+      }
+      toast(data?.status ? `Application marked as ${data.status}.` : "Application updated.");
+      await loadAdminDashboard();
+    });
+  });
+}
+
+async function handleAuthState(session) {
+  currentUser = session?.user || null;
+  authReady = true;
+  updateSessionUI();
+  fillApplicationContactDetails();
+
+  const dashboard = getElement("studentDashboard");
+  if (dashboard) {
+    if (currentUser) {
+      await loadStudentDashboard();
+    } else {
+      window.location.replace(pageUrl(`login.html?next=${encodeURIComponent("dashboard.html")}`));
+    }
+  }
+
+  const adminStatus = getElement("adminStatus");
+  if (adminStatus) {
+    if (!currentUser) {
+      adminStatus.textContent = "Please sign in to continue.";
+      adminStatus.classList.remove("hidden");
+      return;
+    }
+    const isAdmin = await checkIsAdmin();
+    if (!isAdmin) {
+      adminStatus.textContent = "Access denied. This dashboard is restricted to CampusCash Malawi administrators.";
+      adminStatus.classList.remove("hidden");
+      return;
+    }
+    adminStatus.textContent = `Signed in as admin: ${currentUser.email || "administrator"}`;
+    adminStatus.classList.remove("hidden");
+    await loadAdminDashboard();
+  }
+}
+
+function setupSupabase() {
+  const configured = SUPABASE_URL.startsWith("https://") &&
+    !SUPABASE_URL.includes("YOUR_") &&
+    SUPABASE_ANON_KEY &&
+    !SUPABASE_ANON_KEY.includes("YOUR_");
+
+  if (!window.supabase?.createClient) {
+    toast("Supabase could not load. Check your internet connection and reload.");
+    return;
+  }
+  if (!configured) {
+    toast("Add your Supabase project URL and anon/publishable key in app.js to enable accounts.");
+    const dashboard = getElement("studentDashboard");
+    if (dashboard) dashboard.textContent = "Supabase is not configured yet. Add the project URL and anon/publishable key to app.js.";
+    return;
+  }
+
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+  });
+  supabaseClient.auth.onAuthStateChange((_event, session) => {
+    setTimeout(() => handleAuthState(session), 0);
+  });
+  restoreSession();
+}
+
+async function restoreSession() {
+  const { data, error } = await supabaseClient.auth.getSession();
+  if (error) {
+    toast(error.message || "Could not restore your sign-in session.");
+    return;
+  }
+  await handleAuthState(data.session);
+  if (currentUser && ["login.html", "register.html"].includes(currentPage())) {
+    window.location.replace(pageUrl("dashboard.html"));
+  }
+  if (currentUser && currentPage() === "admin.html") {
+    const isAdmin = await checkIsAdmin();
+    if (!isAdmin) {
+      window.location.replace(pageUrl("dashboard.html"));
+    }
+  }
+}
+
+/* STUDENT REGISTRATION */
+getElement("registerForm")?.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!supabaseClient) return toast("Supabase is not connected. Add the project URL and anon/publishable key in app.js.");
+  const formElement = event.currentTarget;
+  const form = new FormData(formElement);
+  const full_name = String(form.get("full_name") || "").trim();
+  const phone = String(form.get("phone") || "").trim();
+  const email = String(form.get("email") || "").trim();
+  const password = String(form.get("password") || "");
+  if (!full_name || !phone || !email) return toast("Complete all required fields.");
+  if (password.length < 8) return toast("Your password must contain at least 8 characters.");
+
+  const button = formElement.querySelector("button[type=submit]");
+  if (button) { button.disabled = true; button.textContent = "Creating account..."; }
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name, phone }, emailRedirectTo: pageUrl("dashboard.html") }
+    });
+    if (error) throw error;
+    formElement.reset();
+    if (data.session) {
+      currentUser = data.user;
+      updateSessionUI();
+      toast("Your student account has been created.");
+      window.location.assign(pageUrl("dashboard.html"));
+    } else {
+      toast("Registration received. Check your email to confirm your account, then sign in.");
+      window.setTimeout(() => window.location.assign(pageUrl("login.html")), 1600);
+    }
+  } catch (error) {
+    toast(error.message || "Registration failed.");
+  } finally {
+    if (button) { button.disabled = false; button.textContent = "Create Account"; }
+  }
+});
+
+/* STUDENT LOGIN */
+getElement("loginForm")?.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!supabaseClient) return toast("Supabase is not connected. Add the project URL and anon/publishable key in app.js.");
+  const formElement = event.currentTarget;
+  const form = new FormData(formElement);
+  const button = formElement.querySelector("button[type=submit]");
+  if (button) { button.disabled = true; button.textContent = "Signing in..."; }
+  try {
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email: String(form.get("email") || "").trim(),
+      password: String(form.get("password") || "")
+    });
+    if (error) throw error;
+    formElement.reset();
+    toast("Welcome back to CampusCash Malawi.");
+    window.location.assign(getSafeNextPage());
+  } catch (error) {
+    toast(error.message || "Login failed.");
+  } finally {
+    if (button) { button.disabled = false; button.textContent = "Login"; }
+  }
+});
+
+/* STUDENT LOGOUT */
+getElement("logoutBtn")?.addEventListener("click", async () => {
+  if (!supabaseClient) return;
+  const { error } = await supabaseClient.auth.signOut();
+  if (error) return toast(error.message || "Could not sign out.");
+  currentUser = null;
+  updateSessionUI();
+  window.location.assign(pageUrl("login.html"));
+});
+
+/* Shared repayment estimates: simple, one-time flat interest only. */
+function estimateFor(amount, term) {
+  const rate = LOAN_RATES[term];
+  if (!Number.isFinite(amount) || amount < 20000 || amount > 2000000 || !rate) return null;
+  const interest = amount * rate;
+  return { principal: amount, rate, interest, total: amount + interest };
+}
+
+function updateLoanEstimate() {
+  const amountInput = getElement("loanAmount");
+  const termInput = getElement("loanTerm");
+  if (!amountInput || !termInput) return;
+  const amount = Number(amountInput.value);
+  const term = Number(termInput.value);
+  const estimate = estimateFor(amount, term);
+  getElement("estimatePrincipal").textContent = money(estimate?.principal || 0);
+  getElement("estimateRate").textContent = estimate ? `${estimate.rate * 100}%` : "—";
+  getElement("estimateInterest").textContent = money(estimate?.interest || 0);
+  getElement("estimateTotal").textContent = money(estimate?.total || 0);
+  let dueDate = "—";
+  if (estimate) {
+    const date = new Date();
+    date.setDate(date.getDate() + term * 7);
+    dueDate = date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  }
+  getElement("estimateDueDate").textContent = dueDate;
+}
+getElement("loanAmount")?.addEventListener("input", updateLoanEstimate);
+getElement("loanTerm")?.addEventListener("change", updateLoanEstimate);
+
+function updateHomeCalculator() {
+  const amountInput = getElement("homeLoanAmount");
+  const termInput = getElement("homeLoanTerm");
+  if (!amountInput || !termInput) return;
+  const estimate = estimateFor(Number(amountInput.value), Number(termInput.value));
+  getElement("homeEstimatePrincipal").textContent = money(estimate?.principal || 0);
+  getElement("homeEstimateRate").textContent = estimate ? `${estimate.rate * 100}%` : "—";
+  getElement("homeEstimateInterest").textContent = money(estimate?.interest || 0);
+  getElement("homeEstimateTotal").textContent = money(estimate?.total || 0);
+  amountInput.setAttribute("aria-invalid", String(!estimate));
+}
+getElement("homeLoanAmount")?.addEventListener("input", updateHomeCalculator);
+getElement("homeLoanTerm")?.addEventListener("change", updateHomeCalculator);
+updateHomeCalculator();
+
+/* Student loan application */
+getElement("applicationForm")?.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!supabaseClient) return toast("Supabase is not connected. Add the project URL and anon/publishable key in app.js.");
+  if (!currentUser) {
+    window.location.assign(pageUrl(`login.html?next=${encodeURIComponent("apply.html")}`));
+    return;
+  }
+
+  const formElement = event.currentTarget;
+  const form = new FormData(formElement);
+  const value = name => {
+    const item = form.get(name);
+    return typeof item === "string" ? item.trim() : item;
+  };
+  const amount = Number(value("amount_requested"));
+  const term = Number(value("loan_term"));
+  const estimate = estimateFor(amount, term);
+  if (!estimate) return toast("Enter an amount from MWK 20,000 to MWK 2,000,000 and select a valid repayment period.");
+  for (const field of ["collateral_confirmation", "information_confirmation", "terms_confirmation"]) {
+    if (value(field) !== "yes") return toast("Please confirm all required statements before submitting.");
+  }
+  const collateralValue = Number(value("collateral_estimated_value"));
+  if (!Number.isFinite(collateralValue) || collateralValue <= 0) return toast("Enter a valid estimated collateral value.");
+  if (!value("full_name") || !value("phone") || !value("email") || !value("institution") || !value("programme") || !value("purpose")) {
+    return toast("Complete the required application details before submitting.");
+  }
+
+  const applicationData = {
+    full_name: value("full_name"), date_of_birth: value("date_of_birth"), phone: value("phone"), email: value("email"),
+    residential_address: value("residential_address"), institution: value("institution"), programme: value("programme"),
+    study_year: value("study_year"), student_id: value("student_id"), amount_requested: amount, loan_term_weeks: term,
+    purpose: value("purpose"), collateral_type: value("collateral_type"), collateral_estimated_value: collateralValue,
+    collateral_description: value("collateral_description"), collateral_confirmation: true,
+    emergency_contact_name: value("emergency_contact_name"), emergency_contact_phone: value("emergency_contact_phone"),
+    emergency_contact_relationship: value("emergency_contact_relationship")
+  };
+
+  const button = formElement.querySelector("button[type=submit]");
+  if (button) { button.disabled = true; button.textContent = "Submitting application..."; }
+  try {
+    const { data, error } = await supabaseClient.rpc("submit_loan_application", { p_application: applicationData });
+    if (error) throw error;
+    const reference = typeof data === "string" ? data.slice(0, 8).toUpperCase() : "received";
+    const message = getElement("applicationMessage");
+    if (message) {
+      message.textContent = `Application received (reference ${reference}). Your collateral is pending physical verification. CampusCash staff will contact you about the next steps.`;
+      message.classList.remove("hidden");
+    }
+    formElement.reset();
+    updateLoanEstimate();
+    toast("Loan application submitted successfully.");
+    await loadStudentDashboard();
+  } catch (error) {
+    console.error("Application submission:", error);
+    toast(error.message || "Application could not be submitted. Check the Supabase schema setup.");
+  } finally {
+    if (button) { button.disabled = false; button.textContent = "Submit Loan Application"; }
+  }
+});
+
+/* STUDENT DASHBOARD */
+async function loadStudentDashboard() {
+  const dashboard = getElement("studentDashboard");
+  const list = getElement("applicationList");
+  if (!dashboard || !list || !currentUser || !supabaseClient) return;
+  dashboard.textContent = "Loading your applications...";
+  list.replaceChildren();
+  const { data, error } = await supabaseClient
+    .from("loan_applications")
+    .select("id, amount_requested, approved_amount, loan_term_weeks, status, created_at, total_repayment, collateral_records(verification_status)")
+    .eq("user_id", currentUser.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    dashboard.textContent = "Your dashboard could not be loaded. Please try again or contact support.";
+    console.error("Student dashboard query:", error);
+    return;
+  }
+  const applications = data || [];
+  if (!applications.length) {
+    dashboard.innerHTML = '<p class="muted">You have not submitted any loan applications yet.</p><a class="btn btn-primary" href="apply.html">Start an application</a>';
+    return;
+  }
+  dashboard.innerHTML = `<p><strong>Total applications:</strong> ${applications.length}</p>`;
+  list.innerHTML = applications.map(application => {
+    const collateral = Array.isArray(application.collateral_records) ? application.collateral_records[0] : application.collateral_records;
+    const collateralStatus = collateral?.verification_status || "Pending review";
+    return `
+      <article class="application-item">
+        <h4>Application ${escapeHTML(String(application.id).slice(0, 8).toUpperCase())}</h4>
+        <p><strong>Requested:</strong> ${money(application.amount_requested)}</p>
+        <p><strong>Approved amount:</strong> ${application.approved_amount == null ? "Not yet approved" : money(application.approved_amount)}</p>
+        <p><strong>Estimated repayment:</strong> ${money(application.total_repayment)}</p>
+        <p><strong>Repayment period:</strong> ${escapeHTML(application.loan_term_weeks || "—")} week(s)</p>
+        <p><strong>Status:</strong> ${escapeHTML(application.status)}</p>
+        <p><strong>Collateral verification:</strong> ${escapeHTML(collateralStatus)}</p>
+        <p><strong>Submitted:</strong> ${application.created_at ? new Date(application.created_at).toLocaleDateString("en-GB") : "—"}</p>
+      </article>
+    `;
+  }).join("");
+}
+
+/* Developer footer attribution */
+function setupDeveloperFooter() {
+  document.querySelectorAll(".footer").forEach(footer => {
+    if (footer.querySelector(".footer-developer")) return;
+    const attribution = document.createElement("div");
+    attribution.className = "footer-developer";
+    attribution.innerHTML = '<p><strong>Platform:</strong> CampusCash Malawi · <strong>Developed by:</strong> Emo Global Solutions</p><p><em>The Home of Design and Digital Innovations.</em></p><p><a href="https://emoglobalsolutions.github.io/emo-global-solutions/" target="_blank" rel="noopener noreferrer">Developer website</a> · <a href="mailto:emoglobalsolutions@gmail.com">Email</a> · <a href="https://wa.me/265990206529" target="_blank" rel="noopener noreferrer">WhatsApp +265 990 206 529</a></p>';
+    footer.append(attribution);
+  });
+}
+
+const yearElement = getElement("year");
+if (yearElement) yearElement.textContent = new Date().getFullYear();
+loadInterfaceStyles();
+setupDropdownNavigation();
+setupPasswordVisibility();
+setupDeveloperFooter();
+setupSupabase();
